@@ -45,6 +45,20 @@
       <div id="main">
         <!-- Intro -->
         <article id="intro">
+          <div class="navigation-buttons"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            ">
+            <a href="#education" class="navigation-link button"
+              
+              style="flex: 1; text-align: right"
+              >Next: Education</a
+            >
+          </div>
+		  
+          <div style="margin-bottom: 30px;"></div>
           <h2 class="major">Intro</h2>
           <span class="image main"><img src="images/intro.jpg" alt="" /></span>
           <p>Oh hello there! 😁</p>
@@ -115,6 +129,21 @@
 
         <!-- Education -->
         <article id="education">
+          <div class="navigation-buttons"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            ">
+            <a href="#intro" class="navigation-link button"style="flex: 1"
+              >Previous: Intro</a>
+            <a href="#work-experience" class="navigation-link button"
+              
+              style="flex: 1; text-align: right"
+              >Next: Work Experience</a
+            >
+          </div>
+          <div style="margin-bottom: 30px;"></div>
           <h2 class="major">Education</h2>
           <span class="image main"
             ><img src="images/education.jpg" alt=""
@@ -137,6 +166,23 @@
 
         <!-- Work Experience -->
         <article id="work-experience">
+          <div class="navigation-buttons"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            ">
+            <a href="#education" class="navigation-link button"
+              style="flex: 1"
+              >Previous: Education</a
+            >
+            <a href="#projects" class="navigation-link button"
+              
+              style="flex: 1; text-align: right"
+              >Next: Projects</a
+            >
+          </div>
+          <div style="margin-bottom: 30px;"></div>
           <h2 class="major">Work Experience</h2>
           <span class="image main"
             ><img src="images/work-experience.png" alt=""
@@ -210,6 +256,21 @@
 
         <!-- Projects -->
         <article id="projects">
+          <div class="navigation-buttons"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            ">
+            <a href="#education" class="navigation-link button"
+              style="flex: 1"
+              >Previous: Work Experience</a
+            >
+            <a href="#skills" class="navigation-link button"
+              style="flex: 1; text-align: right"
+              >Next: Skills</a>
+          </div>
+          <div style="margin-bottom: 30px;"></div>
           <h2 class="major">Projects</h2>
           <span class="image main"
             ><img
@@ -275,6 +336,23 @@
 
         <!-- Skills -->
         <article id="skills">
+          <div class="navigation-buttons"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            ">
+            <a href="#projects" class="navigation-link button"
+              style="flex: 1"
+              >Previous: Projects</a
+            >
+            <a href="#research-interest" class="navigation-link button"
+              
+              style="flex: 1; text-align: right"
+              >Next: Research Interest</a
+            >
+          </div>
+          <div style="margin-bottom: 30px;"></div>
           <h2 class="major">Skills</h2>
           <span class="image main"><img src="images/pic01.jpg" alt="" /></span>
           <h3>Programming Languages</h3>
@@ -446,6 +524,21 @@
 
         <!-- Research Interest -->
         <article id="research-interest">
+          <div class="navigation-buttons"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            ">
+            <a href="#skills" class="navigation-link button"
+              style="flex: 1"
+              >Previous: Skills</a
+            >
+            <a href="#contact" class="navigation-link button"
+              style="flex: 1; text-align: right"
+              >Next: Contact</a>
+          </div>
+          <div style="margin-bottom: 30px;"></div>
           <h2 class="major">Research Interest</h2>
           <span class="image main"
             ><img
@@ -512,6 +605,18 @@
 
         <!-- Contact -->
         <article id="contact">
+          <div class="navigation-buttons"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            ">
+            <a href="#research-interest" class="navigation-link button"
+              style="flex: 1"
+              >Previous: Research Interest</a
+            >
+          </div>
+          <div style="margin-bottom: 30px;"></div>
           <h2 class="major">Contact</h2>
           <form id="contactForm">
             <div class="fields">
@@ -540,6 +645,16 @@
               <li><input type="reset" value="Reset" /></li>
             </ul>
           </form>
+          <!-- Temporary Message Container -->
+          <div id="tempMessage" class="temp-message" style="display: none">
+            <p>Message sent successfully!</p>
+          </div>
+
+          <div
+            id="loadingCircle"
+            class="loading-circle"
+            style="display: none"
+          ></div>
           <ul class="icons">
             <!-- <li>
               <a href="#" class="icon brands fa-twitter"
