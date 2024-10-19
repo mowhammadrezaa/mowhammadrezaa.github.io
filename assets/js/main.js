@@ -26,6 +26,10 @@
 
 	// Play initial animations on page load.
 		$window.on('load', function() {
+			var particles = Particles.init({
+				selector: '.background',
+			  color: '#DA0463'
+			});
 			window.setTimeout(function() {
 				$body.removeClass('is-preload');
 			}, 100);
