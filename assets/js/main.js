@@ -26,9 +26,23 @@
 
 	// Play initial animations on page load.
 		$window.on('load', function() {
+			// Define a list of four possible colors
+			const colorOptions = ['#DA0463', '#46B4DA', '#46DA69', '#DAA546'];
+
+			// Get the current hour
+			const currentHour = new Date().getSeconds();
+			
+			// Cycle over 4 possibilities by using the remainder operator (%)
+			const colorIndex = currentHour % 4;
+			
+			// Select the corresponding color
+			const currentColor = colorOptions[colorIndex];
+			
+            // Apply the selected color to the header and footer backgrounds.
 			var particles = Particles.init({
 				selector: '.background',
-			  color: '#DA0463'
+			  	color: currentColor,
+				connectParticles: true,
 			});
 			window.setTimeout(function() {
 				$body.removeClass('is-preload');
