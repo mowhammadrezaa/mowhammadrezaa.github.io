@@ -1,1 +1,4 @@
 helper.html
+node_modules
+pack*
+setup.yaml
