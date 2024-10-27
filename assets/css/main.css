@@ -1585,6 +1585,10 @@ body.is-preload #header .content .inner {
   z-index: 3;
 }
 
+#bg {
+  z-index: -1;
+}
+
 #main article {
   -moz-transform: translateY(0.25rem);
   -webkit-transform: translateY(0.25rem);

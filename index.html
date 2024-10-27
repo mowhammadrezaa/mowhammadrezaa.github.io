@@ -3,6 +3,7 @@
   <head>
     <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
     <title>Profile | Mohammadreza Hosseini</title>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.41.0.min.js"></script>
     <meta charset="utf-8" />
     <meta
       name="viewport"
@@ -12,8 +13,55 @@
     <noscript
       ><link rel="stylesheet" href="assets/css/noscript.css"
     /></noscript>
+    <style language="text/css">
+      input#wisdom {
+        padding: 4px;
+        font-size: 1em;
+        width: 400px;
+      }
+
+      input::placeholder {
+        color: #ccc;
+        font-style: italic;
+      }
+
+      p.userRequest {
+        margin: 4px;
+        padding: 4px 10px 4px 10px;
+        border-radius: 4px;
+        min-width: 50%;
+        max-width: 85%;
+        float: left;
+        background-color: #7d7;
+      }
+
+      p.lexResponse {
+        margin: 4px;
+        padding: 4px 10px 4px 10px;
+        border-radius: 4px;
+        text-align: right;
+        min-width: 50%;
+        max-width: 85%;
+        float: right;
+        background-color: #bbf;
+        font-style: italic;
+      }
+
+      p.lexError {
+        margin: 4px;
+        padding: 4px 10px 4px 10px;
+        border-radius: 4px;
+        text-align: right;
+        min-width: 50%;
+        max-width: 85%;
+        float: right;
+        background-color: #f77;
+      }
+    </style>
   </head>
   <body class="is-preload">
+    <!-- BG -->
+    <canvas id="bg" class="background"></canvas>
     <!-- Wrapper -->
     <div id="wrapper">
       <!-- Header -->
@@ -45,20 +93,23 @@
       <div id="main">
         <!-- Intro -->
         <article id="intro">
-          <div class="navigation-buttons"
+          <div
+            class="navigation-buttons"
             style="
               display: flex;
               justify-content: space-between;
               align-items: center;
-            ">
-            <a href="#education" class="navigation-link button"
-              
+            "
+          >
+            <a
+              href="#education"
+              class="navigation-link button"
               style="flex: 1; text-align: right"
               >Next: Education</a
             >
           </div>
-		  
-          <div style="margin-bottom: 30px;"></div>
+
+          <div style="margin-bottom: 30px"></div>
           <h2 class="major">Intro</h2>
           <span class="image main"><img src="images/intro.jpg" alt="" /></span>
           <p>Oh hello there! 😁</p>
@@ -129,21 +180,25 @@
 
         <!-- Education -->
         <article id="education">
-          <div class="navigation-buttons"
+          <div
+            class="navigation-buttons"
             style="
               display: flex;
               justify-content: space-between;
               align-items: center;
-            ">
-            <a href="#intro" class="navigation-link button"style="flex: 1"
-              >Previous: Intro</a>
-            <a href="#work-experience" class="navigation-link button"
-              
+            "
+          >
+            <a href="#intro" class="navigation-link button" style="flex: 1"
+              >Previous: Intro</a
+            >
+            <a
+              href="#work-experience"
+              class="navigation-link button"
               style="flex: 1; text-align: right"
               >Next: Work Experience</a
             >
           </div>
-          <div style="margin-bottom: 30px;"></div>
+          <div style="margin-bottom: 30px"></div>
           <h2 class="major">Education</h2>
           <span class="image main"
             ><img src="images/education.jpg" alt=""
@@ -166,23 +221,25 @@
 
         <!-- Work Experience -->
         <article id="work-experience">
-          <div class="navigation-buttons"
+          <div
+            class="navigation-buttons"
             style="
               display: flex;
               justify-content: space-between;
               align-items: center;
-            ">
-            <a href="#education" class="navigation-link button"
-              style="flex: 1"
+            "
+          >
+            <a href="#education" class="navigation-link button" style="flex: 1"
               >Previous: Education</a
             >
-            <a href="#projects" class="navigation-link button"
-              
+            <a
+              href="#projects"
+              class="navigation-link button"
               style="flex: 1; text-align: right"
               >Next: Projects</a
             >
           </div>
-          <div style="margin-bottom: 30px;"></div>
+          <div style="margin-bottom: 30px"></div>
           <h2 class="major">Work Experience</h2>
           <span class="image main"
             ><img src="images/work-experience.png" alt=""
@@ -256,21 +313,25 @@
 
         <!-- Projects -->
         <article id="projects">
-          <div class="navigation-buttons"
+          <div
+            class="navigation-buttons"
             style="
               display: flex;
               justify-content: space-between;
               align-items: center;
-            ">
-            <a href="#education" class="navigation-link button"
-              style="flex: 1"
+            "
+          >
+            <a href="#education" class="navigation-link button" style="flex: 1"
               >Previous: Work Experience</a
             >
-            <a href="#skills" class="navigation-link button"
+            <a
+              href="#skills"
+              class="navigation-link button"
               style="flex: 1; text-align: right"
-              >Next: Skills</a>
+              >Next: Skills</a
+            >
           </div>
-          <div style="margin-bottom: 30px;"></div>
+          <div style="margin-bottom: 30px"></div>
           <h2 class="major">Projects</h2>
           <span class="image main"
             ><img
@@ -336,23 +397,25 @@
 
         <!-- Skills -->
         <article id="skills">
-          <div class="navigation-buttons"
+          <div
+            class="navigation-buttons"
             style="
               display: flex;
               justify-content: space-between;
               align-items: center;
-            ">
-            <a href="#projects" class="navigation-link button"
-              style="flex: 1"
+            "
+          >
+            <a href="#projects" class="navigation-link button" style="flex: 1"
               >Previous: Projects</a
             >
-            <a href="#research-interest" class="navigation-link button"
-              
+            <a
+              href="#research-interest"
+              class="navigation-link button"
               style="flex: 1; text-align: right"
               >Next: Research Interest</a
             >
           </div>
-          <div style="margin-bottom: 30px;"></div>
+          <div style="margin-bottom: 30px"></div>
           <h2 class="major">Skills</h2>
           <h3>Programming Languages</h3>
           <p>
@@ -523,21 +586,25 @@
 
         <!-- Research Interest -->
         <article id="research-interest">
-          <div class="navigation-buttons"
+          <div
+            class="navigation-buttons"
             style="
               display: flex;
               justify-content: space-between;
               align-items: center;
-            ">
-            <a href="#skills" class="navigation-link button"
-              style="flex: 1"
+            "
+          >
+            <a href="#skills" class="navigation-link button" style="flex: 1"
               >Previous: Skills</a
             >
-            <a href="#contact" class="navigation-link button"
+            <a
+              href="#contact"
+              class="navigation-link button"
               style="flex: 1; text-align: right"
-              >Next: Contact</a>
+              >Next: Contact</a
+            >
           </div>
-          <div style="margin-bottom: 30px;"></div>
+          <div style="margin-bottom: 30px"></div>
           <h2 class="major">Research Interest</h2>
           <span class="image main"
             ><img
@@ -604,18 +671,22 @@
 
         <!-- Contact -->
         <article id="contact">
-          <div class="navigation-buttons"
+          <div
+            class="navigation-buttons"
             style="
               display: flex;
               justify-content: space-between;
               align-items: center;
-            ">
-            <a href="#research-interest" class="navigation-link button"
+            "
+          >
+            <a
+              href="#research-interest"
+              class="navigation-link button"
               style="flex: 1"
               >Previous: Research Interest</a
             >
           </div>
-          <div style="margin-bottom: 30px;"></div>
+          <div style="margin-bottom: 30px"></div>
           <h2 class="major">Contact</h2>
           <form id="contactForm">
             <div class="fields">
@@ -697,8 +768,132 @@
       </footer>
     </div>
 
-    <!-- BG -->
-    <canvas id="bg" class="background"></canvas>
+    <div
+      id="conversation"
+      style="
+        width: 400px;
+        height: 400px;
+        border: 1px solid #ccc;
+        background-color: #eee;
+        padding: 4px;
+        overflow: scroll;
+      "
+    ></div>
+    <form id="chatform" style="margin-top: 10px" onsubmit="return pushChat();">
+      <input
+        type="text"
+        id="wisdom"
+        size="80"
+        value=""
+        placeholder="I need a hotel room"
+      />
+    </form>
+    <script type="text/javascript">
+      // set the focus to the input box
+      document.getElementById("wisdom").focus();
+
+      // Initialize the Amazon Cognito credentials provider
+      AWS.config.region = "eu-west-2"; // Region
+      AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        // Provide your Pool Id here
+        IdentityPoolId: "eu-west-2:d6a5d9e0-ee24-4e21-965a-20b550db9e7a",
+      });
+      AWS.config.credentials.get(function (err) {
+        if (err) console.log(err, err.stack); // Handle any error
+        else console.log("Credentials retrieved successfully");
+      });
+
+      var lexruntime = new AWS.LexRuntime();
+      var lexUserId = "chatbot-demo" + Date.now();
+      var sessionAttributes = {};
+
+      function pushChat() {
+        // if there is text to be sent...
+        var wisdomText = document.getElementById("wisdom");
+        if (
+          wisdomText &&
+          wisdomText.value &&
+          wisdomText.value.trim().length > 0
+        ) {
+          // disable input to show we're sending it
+          var wisdom = wisdomText.value.trim();
+          wisdomText.value = "...";
+          wisdomText.locked = true;
+
+          // send it to the Lex runtime
+          var params = {
+            botAlias: "$LATEST",
+            // botAlias: "BETA",
+            botName: "ProfileBotVone",
+            inputText: wisdom,
+            userId: lexUserId,
+            sessionAttributes: sessionAttributes,
+          };
+          showRequest(wisdom);
+          lexruntime.postText(params, function (err, data) {
+            if (err) {
+              console.log(err, err.stack);
+              showError(
+                "Error:  " + err.message + " (see console for details)"
+              );
+            }
+            if (data) {
+              // capture the sessionAttributes for the next cycle
+              sessionAttributes = data.sessionAttributes;
+              // show response and/or error/dialog status
+              showResponse(data);
+            }
+            // re-enable input
+            wisdomText.value = "";
+            wisdomText.locked = false;
+          });
+        }
+        // we always cancel form submission
+        return false;
+      }
+
+      function showRequest(daText) {
+        var conversationDiv = document.getElementById("conversation");
+        var requestPara = document.createElement("P");
+        requestPara.className = "userRequest";
+        requestPara.appendChild(document.createTextNode(daText));
+        conversationDiv.appendChild(requestPara);
+        conversationDiv.scrollTop = conversationDiv.scrollHeight;
+      }
+
+      function showError(daText) {
+        var conversationDiv = document.getElementById("conversation");
+        var errorPara = document.createElement("P");
+        errorPara.className = "lexError";
+        errorPara.appendChild(document.createTextNode(daText));
+        conversationDiv.appendChild(errorPara);
+        conversationDiv.scrollTop = conversationDiv.scrollHeight;
+      }
+
+      function showResponse(lexResponse) {
+        var conversationDiv = document.getElementById("conversation");
+        var responsePara = document.createElement("P");
+        responsePara.className = "lexResponse";
+        if (lexResponse.message) {
+          responsePara.appendChild(
+            document.createTextNode(lexResponse.message)
+          );
+          responsePara.appendChild(document.createElement("br"));
+        }
+        if (lexResponse.dialogState === "ReadyForFulfillment") {
+          responsePara.appendChild(
+            document.createTextNode("Ready for fulfillment")
+          );
+          // TODO:  show slot values
+        } else {
+          responsePara.appendChild(
+            document.createTextNode("(" + lexResponse.dialogState + ")")
+          );
+        }
+        conversationDiv.appendChild(responsePara);
+        conversationDiv.scrollTop = conversationDiv.scrollHeight;
+      }
+    </script>
 
     <!-- Scripts -->
     <script src="assets/js/particles.min.js"></script>
