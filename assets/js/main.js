@@ -158,9 +158,8 @@
 
 										$article.addClass('active');
 
-										// Window stuff.
+										// Window stuff - removed scrollTop(0) to prevent jumping
 											$window
-												.scrollTop(0)
 												.triggerHandler('resize.flexbox-fix');
 
 										// Unlock.
@@ -185,29 +184,28 @@
 							setTimeout(function() {
 
 								// Hide header, footer.
-									$header.hide();
-									$footer.hide();
+								$header.hide();
+								$footer.hide();
 
 								// Show main, article.
-									$main.show();
-									$article.show();
+								$main.show();
+								$article.show();
 
 								// Activate article.
-									setTimeout(function() {
+								setTimeout(function() {
 
-										$article.addClass('active');
+									$article.addClass('active');
 
-										// Window stuff.
-											$window
-												.scrollTop(0)
-												.triggerHandler('resize.flexbox-fix');
+									// Window stuff - removed scrollTop(0) to prevent jumping
+										$window
+											.triggerHandler('resize.flexbox-fix');
 
-										// Unlock.
-											setTimeout(function() {
-												locked = false;
-											}, delay);
+									// Unlock.
+										setTimeout(function() {
+											locked = false;
+										}, delay);
 
-									}, 25);
+								}, 25);
 
 							}, delay);
 
@@ -256,9 +254,8 @@
 							// Unmark as switching.
 								$body.removeClass('is-switching');
 
-							// Window stuff.
+							// Window stuff - removed scrollTop(0) to prevent jumping
 								$window
-									.scrollTop(0)
 									.triggerHandler('resize.flexbox-fix');
 
 							return;
@@ -275,21 +272,20 @@
 					setTimeout(function() {
 
 						// Hide article, main.
-							$article.hide();
-							$main.hide();
+						$article.hide();
+						$main.hide();
 
 						// Show footer, header.
-							$footer.show();
-							$header.show();
+						$footer.show();
+						$header.show();
 
 						// Unmark as visible.
 							setTimeout(function() {
 
 								$body.removeClass('is-article-visible');
 
-								// Window stuff.
+								// Window stuff - removed scrollTop(0) to prevent jumping
 									$window
-										.scrollTop(0)
 										.triggerHandler('resize.flexbox-fix');
 
 								// Unlock.
@@ -383,7 +379,7 @@
 		// Scroll restoration.
 		// This prevents the page from scrolling back to the top on a hashchange.
 			if ('scrollRestoration' in history)
-				history.scrollRestoration = 'manual';
+				history.scrollRestoration = 'auto'; // Changed from 'manual' to 'auto'
 			else {
 
 				var	oldScrollPos = 0,
@@ -398,7 +394,10 @@
 
 					})
 					.on('hashchange', function() {
-						$window.scrollTop(oldScrollPos);
+						// Only restore scroll position if we're not showing an article
+						if (!location.hash || location.hash === '#') {
+							$window.scrollTop(oldScrollPos);
+						}
 					});
 
 			}
@@ -416,4 +415,59 @@
 						$main._show(location.hash.substr(1), true);
 					});
 
+  // Expose a reinitializer for dynamic content injection
+  window.reinitializeTheme = function() {
+    // Rebind header/nav middle alignment
+    var $header = $('#header');
+    var $nav = $header.children('nav');
+    var $nav_li = $nav.find('li');
+    $nav.removeClass('use-middle');
+    $nav_li.removeClass('is-middle');
+    if ($nav_li.length % 2 == 0) {
+      $nav.addClass('use-middle');
+      $nav_li.eq(($nav_li.length / 2)).addClass('is-middle');
+    }
+
+    // Re-query main articles using closure vars
+    $main_articles = $main.children('article');
+
+    // Ensure close buttons and click handlers
+    $main_articles.each(function() {
+      var $this = $(this);
+      $this.off('click');
+      $this.on('click', function(event) { event.stopPropagation(); });
+      $this.find('div.close').remove();
+      $('<div class="close">Close</div>')
+        .appendTo($this)
+        .on('click', function() { location.hash = ''; });
+    });
+
+    // Hide all articles initially; theme shows on hashchange
+    $main_articles.hide();
+
+    // If there's a hash, show it
+    if (location.hash && location.hash !== '#') {
+      var id = location.hash.replace('#', '');
+      if ($main.find('article#' + id).length) {
+        // Directly call theme show method if available
+        if (typeof $main._show === 'function') {
+          $main._show(id, true);
+        } else {
+          // Fallback: show the article
+          $('#header').hide();
+          $('#footer').hide();
+          $main.show();
+          $main.find('article#' + id).show().addClass('active');
+        }
+      }
+    }
+  };
+
 })(jQuery);
+
+// Ensure partials and data renderer are executed after existing scripts
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.renderFromProfileJson) {
+    window.renderFromProfileJson();
+  }
+});

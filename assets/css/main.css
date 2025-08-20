@@ -901,10 +901,10 @@ ul.actions li {
 }
 
 ul.actions.special {
-  -moz-justify-content: center;
-  -webkit-justify-content: center;
-  -ms-justify-content: center;
-  justify-content: center;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  -ms-justify-content: flex-start;
+  justify-content: flex-start;
   width: 100%;
   margin-left: 0;
 }
@@ -1250,6 +1250,14 @@ button {
   z-index: 3;
 }
 
+/* When articles are visible, center the main content */
+body.is-article-visible #wrapper {
+  -moz-justify-content: center;
+  -webkit-justify-content: center;
+  -ms-justify-content: center;
+  justify-content: center;
+}
+
 #wrapper:before {
   content: "";
   display: block;
@@ -1459,6 +1467,9 @@ body.is-article-visible #header {
   -ms-filter: blur(0.1rem);
   filter: blur(0.1rem);
   opacity: 0;
+  display: none !important; /* Completely hide header */
+  position: absolute !important; /* Remove from layout flow */
+  visibility: hidden !important; /* Ensure it's not visible */
 }
 
 body.is-preload #header {
@@ -1583,6 +1594,11 @@ body.is-preload #header .content .inner {
   position: relative;
   max-width: 100%;
   z-index: 3;
+  /* Ensure smooth transitions */
+  -moz-transition: all 0.325s ease-in-out;
+  -webkit-transition: all 0.325s ease-in-out;
+  -ms-transition: all 0.325s ease-in-out;
+  transition: all 0.325s ease-in-out;
 }
 
 #bg {
@@ -1702,15 +1718,9 @@ body.is-preload #header .content .inner {
 }
 
 body.is-article-visible #footer {
-  -moz-transform: scale(0.95);
-  -webkit-transform: scale(0.95);
-  -ms-transform: scale(0.95);
-  transform: scale(0.95);
-  -moz-filter: blur(0.1rem);
-  -webkit-filter: blur(0.1rem);
-  -ms-filter: blur(0.1rem);
-  filter: blur(0.1rem);
-  opacity: 0;
+  display: none !important; /* Completely hide footer */
+  position: absolute !important; /* Remove from layout flow */
+  visibility: hidden !important; /* Ensure it's not visible */
 }
 
 body.is-preload #footer {
