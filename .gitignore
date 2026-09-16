@@ -62,3 +62,4 @@ Makefile
 *.tex
 helper.html
 .DS_Store
+.env*
