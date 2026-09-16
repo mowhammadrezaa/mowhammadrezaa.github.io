@@ -1,28 +1,64 @@
-helper.html
-node_modules
-pack*
-setup.yaml
-*.log
-*.fls
-*.fdb_latexmk
-*.aux
-*.cls
-*.tex
-*.xdv
-*.xml
-*.bcf
-*.run.xml
-*.bbl
-*.blg
-*.fdb_latexmk
-*.fls
-*.log
-*.out
-*.toc
-*.lot
-*.lof
-*.lot
-cover
-OpenFonts
-Makefile
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/studio/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+/studio/dist
+/public/studio/static
+
+# misc
+.DS_Store
+*.pem
+.vscode
+.idea/
+*.iml
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# Env files created by scripts for working locally
+.env
+studio/.env.development
+next-env.d.ts
+
+# Sanity Blueprints stack binding (written by `sanity blueprints init`) and function build output
+.sanity/
+/functions/*/.build
+
+# Local CV / LaTeX (not part of the Next.js site)
 swe-cv/*
+OpenFonts/
+cover/
+sections/
+Makefile
+*.tex
+helper.html
+.DS_Store
