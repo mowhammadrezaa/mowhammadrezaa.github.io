@@ -1,50 +1,62 @@
 import ImageBox from '@/components/ImageBox'
 import type {Milestone} from '@/sanity.types'
 
-export function TimelineItem({milestone}: {milestone: Milestone}) {
+export function TimelineItem({
+  milestone,
+  ...props
+}: {
+  milestone: Milestone
+  'data-sanity'?: string
+}) {
   const {description, duration, image, tags, title} = milestone
   const startYear = duration?.start ? new Date(duration.start).getFullYear() : undefined
   const endYear = duration?.end ? new Date(duration.end).getFullYear() : 'Now'
 
   return (
-    <div className="flex min-h-[200px] font-sans last:pb-2">
-      <div className="flex flex-col">
-        {/* Thumbnail */}
-        <div
-          className="relative overflow-hidden rounded-md bg-transparent"
-          style={{width: '65px', height: '65px'}}
-        >
-          <ImageBox
-            image={image}
-            alt={title || 'Timeline item icon'}
-            size="65px"
-            // Request 3× assets so icons stay sharp on retina displays
-            width={195}
-            height={195}
-            quality={100}
-            unoptimized
-            preserveAlpha
-            classesWrapper="absolute inset-0"
-          />
+    <div
+      className="flex flex-col gap-x-5 p-2 transition odd:border-b odd:border-t hover:bg-gray-50/50 xl:flex-row odd:xl:flex-row-reverse"
+      data-sanity={props['data-sanity']}
+    >
+      <div className="w-full xl:w-9/12">
+        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[3px] bg-gray-50">
+          <div className="absolute inset-0 p-10 md:p-16 lg:p-20">
+            <ImageBox
+              image={image}
+              alt={title || 'Timeline item icon'}
+              width={900}
+              height={900}
+              size="(max-width: 1280px) 100vw, 75vw"
+              quality={100}
+              unoptimized
+              preserveAlpha
+              classesWrapper="relative h-full w-full bg-transparent"
+            />
+          </div>
         </div>
-        {/* Vertical line */}
-        <div className="mt-2 w-px grow self-center bg-gray-200 group-last:hidden" />
       </div>
-      <div className="flex-initial pl-4">
-        {/* Title */}
-        <div className="font-bold text-black">{title}</div>
-        {/* Tags */}
-        <div className="text-sm text-gray-600">
-          {tags?.map((tag, key) => (
-            <span key={key}>
-              {tag}
-              <span className="mx-1">●</span>
-            </span>
-          ))}
-          {startYear} - {endYear}
+      <div className="flex xl:w-1/4">
+        <div className="relative mt-2 flex w-full flex-col justify-between p-3 xl:mt-0">
+          <div>
+            <div className="mb-2 text-xl font-extrabold tracking-tight md:text-2xl">{title}</div>
+            {(startYear || endYear) && (
+              <div className="mb-3 text-sm font-medium text-gray-500 md:text-base">
+                {startYear} – {endYear}
+              </div>
+            )}
+            {description && (
+              <div className="font-serif text-gray-500">{description}</div>
+            )}
+          </div>
+          {tags && tags.length > 0 && (
+            <div className="mt-4 flex flex-row flex-wrap gap-x-2 gap-y-1">
+              {tags.map((tag, key) => (
+                <div className="text-sm font-medium lowercase md:text-lg" key={key}>
+                  #{tag}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        {/* Description */}
-        <div className="pb-5 pt-3 font-serif text-gray-600">{description}</div>
       </div>
     </div>
   )

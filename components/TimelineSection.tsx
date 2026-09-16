@@ -7,7 +7,7 @@ import {studioUrl} from '@/sanity/lib/api'
 
 import {OptimisticSortOrder} from './OptimisticSortOrder'
 
-interface TimelineItem {
+interface TimelineBlock {
   _key: string
   title?: string
   milestones?: (Milestone & {_key: string})[]
@@ -19,7 +19,7 @@ export function TimelineSection({
   type,
   path,
 }: {
-  timelines: TimelineItem[] | undefined
+  timelines: TimelineBlock[] | undefined
   id: string | null
   type: string | null
   path: StudioPathLike
@@ -35,34 +35,33 @@ export function TimelineSection({
       : null
 
   return (
-    <div
-      className="flex flex-col gap-4 pt-16 text-black md:flex-row"
-      data-sanity={dataAttribute?.()}
-    >
+    <div className="space-y-12 pt-16 text-black" data-sanity={dataAttribute?.()}>
       <OptimisticSortOrder id={id} path={path}>
         {timelines?.map((timeline) => {
           const {title, milestones, _key} = timeline
           return (
-            <div
-              className="max-w-[80%] md:max-w-[50%]"
-              key={_key}
-              data-sanity={dataAttribute?.([{_key}])}
-            >
-              <div className="pb-5 font-sans text-xl font-bold">{stegaClean(title)}</div>
-              <OptimisticSortOrder
-                id={id}
-                path={[...(Array.isArray(path) ? path : [path]), {_key}, 'milestones']}
-              >
-                {milestones?.map((experience) => (
-                  <div
-                    key={experience._key}
-                    data-sanity={dataAttribute?.([{_key}, 'milestones', {_key: experience._key}])}
-                    className="group"
-                  >
-                    <TimelineItem milestone={stegaClean(experience)} />
-                  </div>
-                ))}
-              </OptimisticSortOrder>
+            <div key={_key} data-sanity={dataAttribute?.([{_key}])}>
+              {title ? (
+                <div className="pb-5 font-sans text-xl font-bold">{stegaClean(title)}</div>
+              ) : null}
+              <div className="mx-auto max-w-[100rem] rounded-md border">
+                <OptimisticSortOrder
+                  id={id}
+                  path={[...(Array.isArray(path) ? path : [path]), {_key}, 'milestones']}
+                >
+                  {milestones?.map((experience) => (
+                    <TimelineItem
+                      key={experience._key}
+                      milestone={stegaClean(experience)}
+                      data-sanity={dataAttribute?.([
+                        {_key},
+                        'milestones',
+                        {_key: experience._key},
+                      ])}
+                    />
+                  ))}
+                </OptimisticSortOrder>
+              </div>
             </div>
           )
         })}
