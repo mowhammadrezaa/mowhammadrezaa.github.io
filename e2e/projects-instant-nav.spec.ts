@@ -11,7 +11,7 @@ const VIEWPORTS = [
 test.describe('instant nav to a project page', () => {
   test('project header and footer commit under instant()', async ({page}) => {
     const projects = await readShowcaseProjects(page)
-    expect(projects.length, 'homepage showcase needs a project link').toBeGreaterThanOrEqual(1)
+    expect(projects.length, 'projects page needs a project link').toBeGreaterThanOrEqual(1)
     const destination = projects.length > 1 ? projects[1] : projects[0]
     const origin = projects[0]
 
@@ -24,7 +24,7 @@ test.describe('instant nav to a project page', () => {
       : page.locator(`a[href="${destination.href}"]`).first()
 
     if (!(await navTrigger.isVisible())) {
-      await page.goto('/')
+      await page.goto('/projects')
       await expect(trigger).toBeVisible({timeout: 20000})
     }
 

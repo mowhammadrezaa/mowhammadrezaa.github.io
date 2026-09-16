@@ -21,8 +21,9 @@ export async function generateStaticParams() {
     query: slugsByTypeQuery,
     params: {type: 'page'} satisfies SlugsByTypeQueryParams,
   })
-  if (data.length > 0) {
-    return data
+  const params = data.filter((entry) => entry.slug !== 'projects')
+  if (params.length > 0) {
+    return params
   }
   // Cache Components requires `generateStaticParams` to return at least one param — an empty
   // array fails the build (https://nextjs.org/docs/messages/empty-generate-static-params).

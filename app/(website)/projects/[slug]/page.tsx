@@ -5,7 +5,7 @@ import {notFound} from 'next/navigation'
 
 import {CustomPortableText} from '@/components/CustomPortableText'
 import {Header} from '@/components/Header'
-import ImageBox from '@/components/ImageBox'
+import {ProjectCoverMedia} from '@/components/ProjectCoverMedia'
 import {studioUrl} from '@/sanity/lib/api'
 import {
   getDynamicFetchOptions,
@@ -75,6 +75,7 @@ async function CachedProjectSlugPage({
       _type,
       client,
       coverImage,
+      coverVideoUrl,
       description,
       duration,
       overview,
@@ -102,7 +103,8 @@ async function CachedProjectSlugPage({
         })
       : null
 
-  const {client, coverImage, description, duration, overview, site, tags, title} = data ?? {}
+  const {client, coverImage, coverVideoUrl, description, duration, overview, site, tags, title} =
+    data ?? {}
 
   const startYear = duration?.start ? new Date(duration.start).getFullYear() : undefined
   const endYear = duration?.end ? new Date(duration?.end).getFullYear() : 'Now'
@@ -120,12 +122,11 @@ async function CachedProjectSlugPage({
 
       <div className="rounded-md border">
         {/* Image  */}
-        <ImageBox
+        <ProjectCoverMedia
           data-sanity={dataAttribute?.('coverImage')}
           image={coverImage}
-          // @TODO add alt field in schema
-          alt=""
-          classesWrapper="relative aspect-[16/9]"
+          videoUrl={coverVideoUrl}
+          alt={title ? `Cover media from ${title}` : 'Project cover'}
         />
 
         <div className="divide-inherit grid grid-cols-1 divide-y lg:grid-cols-4 lg:divide-x lg:divide-y-0">
@@ -163,12 +164,17 @@ async function CachedProjectSlugPage({
 
           {/* Tags */}
           <div className="p-3 lg:p-4">
-            <div className="text-xs md:text-sm">Tags</div>
-            <div className="text-md flex flex-row flex-wrap md:text-lg">
+            <div className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
+              Tags
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
               {tags?.map((tag, key) => (
-                <div key={key} className="mr-1 break-words">
-                  #{tag}
-                </div>
+                <span
+                  key={key}
+                  className="inline-flex items-center border border-black/10 bg-black/[0.025] px-2.5 py-1 font-sans text-[0.65rem] font-medium uppercase tracking-[0.14em] text-gray-600 md:text-[0.7rem]"
+                >
+                  {tag}
+                </span>
               ))}
             </div>
           </div>

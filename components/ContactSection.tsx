@@ -54,7 +54,7 @@ interface ContactSectionProps {
 
 export function ContactSection({id, type, title, overview}: ContactSectionProps) {
   return (
-    <article className="mx-auto max-w-3xl">
+    <article className="mx-auto max-w-3xl pb-16 md:pb-24">
       <p className="font-sans text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
         Get in touch
       </p>

@@ -131,6 +131,16 @@
           },
           "optional": true
         },
+        "points": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
         "image": {
           "type": "objectAttribute",
           "value": {
@@ -175,6 +185,23 @@
                 }
               }
             }
+          },
+          "optional": true
+        },
+        "imageLayout": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "logo"
+              },
+              {
+                "type": "string",
+                "value": "cover"
+              }
+            ]
           },
           "optional": true
         },
@@ -405,6 +432,13 @@
               }
             }
           }
+        },
+        "optional": true
+      },
+      "coverVideoUrl": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
         },
         "optional": true
       },

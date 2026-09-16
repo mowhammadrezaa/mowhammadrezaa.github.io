@@ -70,5 +70,9 @@ export function CustomPortableText({
     },
   } satisfies InferStrictComponents<typeof value>
 
-  return <PortableText components={components} value={value} />
+  return (
+    <div className="space-y-12">
+      <PortableText components={components} value={value} />
+    </div>
+  )
 }

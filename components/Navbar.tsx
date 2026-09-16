@@ -17,6 +17,19 @@ function shortBrandName(name: string) {
   return `${parts[0]![0]}. ${parts[parts.length - 1]}`
 }
 
+/** Point primary nav at home-section anchors so content is scrollable on `/`. */
+function toSectionHref(documentType?: string | null, slug?: string | null) {
+  const href = resolveHref(documentType || undefined, slug)
+  if (!href) return undefined
+  if (documentType === 'page' && slug) return `/#${slug}`
+  return href
+}
+
+function navTestId(href: string) {
+  if (href.startsWith('/#')) return `nav-link-${href.slice(2)}`
+  return `nav-link${href.replaceAll('/', '-')}`
+}
+
 export function Navbar(props: NavbarProps) {
   const {data} = props
   const dataAttribute =
@@ -39,7 +52,7 @@ export function Navbar(props: NavbarProps) {
   const brandShort = shortBrandName(brandName)
 
   const mobileItems: MobileNavItem[] = navItems.flatMap((menuItem) => {
-    const href = resolveHref(menuItem?._type, menuItem?.slug)
+    const href = toSectionHref(menuItem?._type, menuItem?.slug)
     if (!href || !menuItem._key) return []
     return [
       {
@@ -81,14 +94,13 @@ export function Navbar(props: NavbarProps) {
           </span>
         )}
 
-        {/* Desktop nav — only when there is enough horizontal room */}
         <nav
           aria-label="Primary"
           className="hidden min-w-0 items-center gap-x-6 lg:flex xl:gap-x-7"
         >
           <OptimisticSortOrder id={data?._id} path="menuItems">
             {navItems.map((menuItem) => {
-              const href = resolveHref(menuItem?._type, menuItem?.slug)
+              const href = toSectionHref(menuItem?._type, menuItem?.slug)
               if (!href) {
                 return null
               }
@@ -101,7 +113,7 @@ export function Navbar(props: NavbarProps) {
                     'menuItems',
                     {_key: menuItem._key as unknown as string},
                   ])}
-                  data-testid={`nav-link${href.replaceAll('/', '-')}`}
+                  data-testid={navTestId(href)}
                 >
                   {stegaClean(menuItem.title)}
                 </NavLink>
@@ -110,7 +122,6 @@ export function Navbar(props: NavbarProps) {
           </OptimisticSortOrder>
         </nav>
 
-        {/* Mobile menu button + panel */}
         <MobileNav items={mobileItems} />
       </div>
     </header>

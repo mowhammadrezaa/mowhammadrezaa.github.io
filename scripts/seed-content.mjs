@@ -94,12 +94,13 @@ async function uploadImage(filePath, filename = basename(filePath)) {
   }
 }
 
-function milestone({title, description, tags, start, end, image}) {
+function milestone({title, description, points, tags, start, end, image, imageLayout}) {
   return {
     _type: 'milestone',
     _key: key(),
     title,
     description,
+    ...(points?.length ? {points} : {}),
     tags: tags || [],
     duration: {
       _type: 'duration',
@@ -107,6 +108,7 @@ function milestone({title, description, tags, start, end, image}) {
       end: end || undefined,
     },
     ...(image ? {image} : {}),
+    ...(imageLayout ? {imageLayout} : {}),
   }
 }
 
@@ -134,7 +136,7 @@ const projects = [
     client: 'AWENTIA',
     tags: ['Computer Vision', 'Edge AI', 'Hailo', 'GStreamer'],
     duration: {start: '2024-11-01', end: null},
-    cover: 'work-experience.png',
+    cover: 'project-safety-detection-cover.png',
     bullets: [
       'Built a production C++/GStreamer pipeline on Hailo edge AI hardware to detect humans, animals, industrial tools, and machinery in real time.',
       'Integrated a Global Shutter camera to counter machine vibration and reduce motion blur.',
@@ -151,7 +153,8 @@ const projects = [
     client: 'AWENTIA',
     tags: ['Computer Vision', 'Edge AI', 'Quality Control'],
     duration: {start: '2024-11-01', end: null},
-    cover: 'work-experience.png',
+    cover: 'project-medicine-packet-cover.jpg',
+    coverVideo: '/videos/project-medicine-packet-cover.mp4',
     bullets: [
       'Developed a full C++/GStreamer vision pipeline running on Hailo edge AI hardware for medicine packet detection and identification.',
       'Implemented a robust identification stage to support downstream validation of package correctness.',
@@ -168,7 +171,7 @@ const projects = [
     client: 'AWENTIA',
     tags: ['Computer Vision', 'OWLv2', 'Jetson', 'Triton'],
     duration: {start: '2024-11-01', end: null},
-    cover: 'work-experience.png',
+    cover: 'project-owlv2-cover.png',
     bullets: [
       'Implemented the full OWLv2 inference pipeline on Jetson Orin using Triton Inference Server for edge deployment.',
       'Enabled prompt-based open-vocabulary detection from text or image queries.',
@@ -291,8 +294,15 @@ async function main() {
   const introImage =
     (await uploadImage(join(assetsDir, 'about-portrait.png'))) ||
     (await uploadImage(join(legacyAssetsDir, 'intro.jpg')))
-  const educationImage = await uploadImage(join(legacyAssetsDir, 'education.jpg'))
+  const educationImage =
+    (await uploadImage(join(assetsDir, 'education-unibo-cover.png'))) ||
+    (await uploadImage(join(legacyAssetsDir, 'education.jpg')))
+  const educationDamghanImage = await uploadImage(join(assetsDir, 'education-damghan-cover.png'))
   const workImage = await uploadImage(join(legacyAssetsDir, 'work-experience.png'))
+  const workIconAwentia = await uploadImage(join(assetsDir, 'work-icon-awentia.png'))
+  const workIconPassateoria = await uploadImage(join(assetsDir, 'work-icon-passateoria.png'))
+  const workIconNova = await uploadImage(join(assetsDir, 'work-icon-nova-xr.png'))
+  const workIconUnibo = await uploadImage(join(assetsDir, 'work-icon-unibo.png'))
 
   const coverCache = {}
   for (const name of [
@@ -301,12 +311,16 @@ async function main() {
     'work-experience.png',
     'passateoria-cover.jpg',
     'about-portrait.png',
+    'project-safety-detection-cover.png',
+    'project-medicine-packet-cover.jpg',
+    'project-owlv2-cover.png',
   ]) {
     const path = [join(assetsDir, name), join(legacyAssetsDir, name)].find((p) => existsSync(p))
     if (name === 'about-portrait.png' && introImage) coverCache[name] = introImage
     else if (name === 'intro.jpg' && introImage) coverCache[name] = introImage
     else if (name === 'education.jpg' && educationImage) coverCache[name] = educationImage
-    else if (name === 'work-experience.png' && workImage) coverCache[name] = workImage
+    else if (name === 'work-experience.png')
+      coverCache[name] = workImage || workIconAwentia || workIconNova
     else if (path) coverCache[name] = await uploadImage(path)
   }
 
@@ -330,6 +344,7 @@ async function main() {
         end: p.duration.end ? new Date(p.duration.end).toISOString() : undefined,
       },
       ...(p.site ? {site: p.site} : {}),
+      ...(p.coverVideo ? {coverVideoUrl: p.coverVideo} : {}),
       description: bulletList(p.bullets),
     }
     projectDocs.push(doc)
@@ -393,6 +408,7 @@ async function main() {
           start: '2021-09-01T00:00:00.000Z',
           end: '2024-10-01T00:00:00.000Z',
           image: educationImage || undefined,
+          imageLayout: 'cover',
         }),
         milestone({
           title: 'University of Damghan',
@@ -400,6 +416,8 @@ async function main() {
           tags: ['B.S.', 'Computer Science'],
           start: '2015-02-01T00:00:00.000Z',
           end: '2019-02-01T00:00:00.000Z',
+          image: educationDamghanImage || undefined,
+          imageLayout: 'cover',
         }),
       ]),
       block('Publication'),
@@ -421,34 +439,55 @@ async function main() {
       timeline('Experience', [
         milestone({
           title: 'AWENTIA',
-          description:
-            'Computer Vision Engineer — production edge AI pipelines (Hailo, DeepStream, Triton, Kubernetes).',
-          tags: ['Computer Vision Engineer'],
+          description: 'Computer Vision Engineer',
+          tags: ['Computer Vision Engineer', 'Edge AI'],
           start: '2024-11-01T00:00:00.000Z',
-          image: workImage || undefined,
+          image: workIconAwentia || workImage || undefined,
+          points: [
+            'Consulted with cross-functional teams to translate business requirements into automated dataset collection systems, developing custom firmware for embedded IoT devices to capture sensor data, reducing manual data collection time by 40% and enabling scalable AI model development',
+            'Led end-to-end development of production AI solutions from concept to deployment by studying research papers, open-source repositories, and product documentation to identify state-of-the-art approaches, creating cross-industry computer vision SDKs that integrated AI models into edge devices for client automation',
+            'Engineered real-time image processing pipeline implementing custom pre/post-processing operators and inference tensor decoders using GStreamer, Hailo Edge AI Processors, and NVIDIA DeepStream with TensorRT and OpenVINO optimization, transforming raw model outputs into structured metadata for seamless application developer integration',
+            'Collaborated with compiler and platform teams to diagnose and resolve complex compilation and deployment issues across multiple edge runtimes, ensuring reliable cross-platform model execution',
+            'Deployed production-ready AI models into scalable Kubernetes environments using Triton Server, establishing CI/CD pipelines that reduced deployment time by 60% and enabled seamless integration of computer vision solutions across multiple client projects',
+          ],
         }),
         milestone({
           title: 'PassaTeoria',
-          description:
-            'Founder & Full-Stack Engineer — EdTech product for Italian driving theory exam (web, Android, iOS).',
-          tags: ['Founder', 'Full-Stack'],
+          description: 'Founder & Full-Stack Engineer',
+          tags: ['Founder', 'Full-Stack', 'EdTech'],
           start: '2026-06-01T00:00:00.000Z',
+          image: coverCache['passateoria-cover.jpg'] || workIconPassateoria || undefined,
+          imageLayout: 'cover',
+          points: [
+            'Founded and shipped PassaTeoria (passateoria.it), a cross-platform EdTech product for the Italian driving theory exam (patente A1, A, B), delivering web, Android (Google Play), and iOS from one Expo / React Native codebase',
+            'Built a database-first content platform: 25-lesson theory course (656 sections, ~87k words), 7,139 ministerial-style true/false quizzes, and a 4,500+ term dictionary with tap-to-translate and Italian pronunciation; native content in 7 languages plus on-demand AI translation for 170+ languages',
+            'Designed the freemium SaaS layer end-to-end: Google OAuth, Stripe Checkout on web, Google Play Billing on Android, device entitlement, rate limiting / abuse controls, and GDPR-compliant account deletion',
+            'Owned production operations: Supabase (Postgres, Auth, RLS) for course content and learner progress, an Express API for billing and translations, Docker on GCP provisioned with Terraform, Cloudflare TLS, and a Telegram admin bot for premium grants and comment moderation',
+          ],
         }),
         milestone({
           title: 'NOVA XR',
-          description:
-            'AI Integration Engineer — low-latency AI vision in Unreal Engine (~20ms inference).',
+          description: 'AI Integration Engineer',
           tags: ['AI Integration Engineer'],
           start: '2024-04-01T00:00:00.000Z',
           end: '2024-07-01T00:00:00.000Z',
+          image: workIconNova || undefined,
+          points: [
+            'Collaborated with client teams to diagnose real-time AI integration challenges, translating requirements into technical specifications and deploying low-latency inference pipelines achieving 20ms inference time for production AI vision systems within Unreal Engine',
+            'Deployed production AI services using Docker and Kubernetes for scalable model serving and load balancing, ensuring reliable performance for client-facing applications',
+          ],
         }),
         milestone({
           title: 'University of Bologna',
-          description:
-            'Teaching Assistant — AI concepts for 300+ students; coursework with Professors Martini and Lodi.',
+          description: 'Teaching Assistant',
           tags: ['Teaching Assistant'],
           start: '2022-09-01T00:00:00.000Z',
           end: '2025-09-01T00:00:00.000Z',
+          image: workIconUnibo || educationImage || undefined,
+          points: [
+            'Communicated complex AI concepts to 300+ non-technical students, translating technical specifications into accessible learning materials and collaborating with professors to align course content with industry requirements, resulting in improved student success rates',
+            'Collaborated with Professors Simone Martini and Michael Lodi on course material preparation and assignment grading, bridging academic and practical AI applications',
+          ],
         }),
       ]),
     ],
@@ -518,7 +557,20 @@ async function main() {
     body: [block('Contact details are shown on this page with one-click copy.')],
   }
 
-  const pages = [aboutPage, educationPage, workPage, skillsPage, contactPage]
+  const projectsPage = {
+    _id: 'page-projects',
+    _type: 'page',
+    title: 'Projects',
+    slug: {_type: 'slug', current: 'projects'},
+    overview: [
+      block(
+        'Selected edge AI, computer vision, and product work — from real-time pipelines to full-stack shipping.',
+      ),
+    ],
+    body: [],
+  }
+
+  const pages = [aboutPage, educationPage, workPage, skillsPage, contactPage, projectsPage]
 
   const home = {
     _id: 'home',
@@ -535,8 +587,9 @@ async function main() {
   const menuItems = [
     {_type: 'reference', _ref: 'home', _key: key()},
     {_type: 'reference', _ref: 'page-about', _key: key()},
-    {_type: 'reference', _ref: 'page-education', _key: key()},
     {_type: 'reference', _ref: 'page-work', _key: key()},
+    {_type: 'reference', _ref: 'page-projects', _key: key()},
+    {_type: 'reference', _ref: 'page-education', _key: key()},
     {_type: 'reference', _ref: 'page-skills', _key: key()},
     {_type: 'reference', _ref: 'page-contact', _key: key()},
   ]

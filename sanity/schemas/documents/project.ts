@@ -68,6 +68,13 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'coverVideoUrl',
+      title: 'Cover Video URL',
+      description:
+        'Optional looping video shown instead of the cover image in project lists and on the project page (e.g. /videos/example.mp4).',
+      type: 'string',
+    }),
+    defineField({
       name: 'duration',
       title: 'Duration',
       type: 'duration',

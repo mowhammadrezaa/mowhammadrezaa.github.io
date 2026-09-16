@@ -3,7 +3,7 @@
 import {useEffect, useId, useState} from 'react'
 import {usePathname} from 'next/navigation'
 
-import {AppLink} from '@/components/AppLink'
+import {NavLink} from '@/components/NavLink'
 
 export type MobileNavItem = {
   key: string
@@ -11,6 +11,11 @@ export type MobileNavItem = {
   title: string
   prefetch?: boolean
   sanityAttr?: string
+}
+
+function navTestId(href: string) {
+  if (href.startsWith('/#')) return `nav-link-${href.slice(2)}`
+  return `nav-link${href.replaceAll('/', '-')}`
 }
 
 export function MobileNav({items}: {items: MobileNavItem[]}) {
@@ -63,26 +68,21 @@ export function MobileNav({items}: {items: MobileNavItem[]}) {
             className="absolute inset-x-0 top-0 border-b border-black/10 bg-white px-4 py-3 shadow-sm"
           >
             <ul className="flex flex-col">
-              {items.map((item) => {
-                const isActive =
-                  pathname === item.href || pathname.startsWith(`${item.href}/`)
-                return (
-                  <li key={item.key}>
-                    <AppLink
-                      href={item.href}
-                      prefetch={item.prefetch}
-                      data-sanity={item.sanityAttr}
-                      data-testid={`nav-link${item.href.replaceAll('/', '-')}`}
-                      className={`block border-b border-black/[0.06] py-3.5 text-base tracking-wide last:border-b-0 ${
-                        isActive ? 'font-medium text-black' : 'text-gray-600'
-                      }`}
-                      onClick={() => setOpen(false)}
-                    >
-                      {item.title}
-                    </AppLink>
-                  </li>
-                )
-              })}
+              {items.map((item) => (
+                <li key={item.key}>
+                  <NavLink
+                    href={item.href}
+                    prefetch={item.prefetch}
+                    data-sanity={item.sanityAttr}
+                    data-testid={navTestId(item.href)}
+                    showUnderline={false}
+                    className="block w-full border-b border-black/[0.06] !pb-3.5 py-3.5 text-base tracking-wide last:border-b-0"
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.title}
+                  </NavLink>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>

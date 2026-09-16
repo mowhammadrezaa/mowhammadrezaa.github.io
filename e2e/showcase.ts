@@ -7,7 +7,7 @@ export function visibleTitle(page: Page, title: string) {
 }
 
 export async function readShowcaseProjects(page: Page): Promise<ShowcaseProject[]> {
-  await page.goto('/')
+  await page.goto('/projects')
   const links = page.locator('a[href^="/projects/"]')
   await expect(links.first()).toBeVisible({timeout: 20000})
   const raw = await links.evaluateAll((els) =>

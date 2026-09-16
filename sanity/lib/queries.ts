@@ -19,6 +19,25 @@ export const settingsQuery = defineQuery(`
   }
 `)
 
+export const showcaseProjectsQuery = defineQuery(`
+  *[_type == "home"][0]{
+    _id,
+    showcaseProjects[]{
+      _key,
+      ...@->{
+        _id,
+        _type,
+        coverImage,
+        coverVideoUrl,
+        overview,
+        "slug": slug.current,
+        tags,
+        title,
+      }
+    }
+  }
+`)
+
 export const slugsByTypeQuery = defineQuery(`
   *[_type == $type && defined(slug.current)]{"slug": slug.current}
 `)

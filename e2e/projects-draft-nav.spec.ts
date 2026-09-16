@@ -14,7 +14,7 @@ test.describe('draft-mode project navigation', () => {
 
   test('opening every project in draft mode shows that project', async ({page, baseURL}) => {
     const projects = await readShowcaseProjects(page)
-    expect(projects.length, 'homepage showcase needs a project link').toBeGreaterThanOrEqual(1)
+    expect(projects.length, 'projects page needs a project link').toBeGreaterThanOrEqual(1)
 
     const client = createClient({
       projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -26,11 +26,11 @@ test.describe('draft-mode project navigation', () => {
     const {secret} = await createPreviewSecret(client, 'draft-nav-e2e', '/studio')
     const enableUrl = new URL('/api/draft-mode/enable', baseURL)
     enableUrl.searchParams.set('sanity-preview-secret', secret)
-    // Enable draft on the home page and then navigate into projects client-side. Starting
-    // from "/" (not a project) is what exposes the sticky-navigation bug: the showcase links
-    // prefetch a sibling project, and every subsequent /projects/[slug] navigation would
-    // otherwise reuse that one prefetched RSC.
-    enableUrl.searchParams.set('sanity-preview-pathname', '/')
+    // Enable draft on the projects index and then navigate into project pages client-side.
+    // Starting from "/projects" (not a project detail) is what exposes the sticky-navigation
+    // bug: the showcase links prefetch a sibling project, and every subsequent
+    // /projects/[slug] navigation would otherwise reuse that one prefetched RSC.
+    enableUrl.searchParams.set('sanity-preview-pathname', '/projects')
     enableUrl.searchParams.set('sanity-preview-perspective', 'drafts')
 
     await page.goto(enableUrl.toString(), {waitUntil: 'domcontentloaded'})
@@ -38,7 +38,7 @@ test.describe('draft-mode project navigation', () => {
 
     // Let the showcase links prefetch before navigating; the bug is that a prefetched
     // sibling's RSC gets reused for the whole /projects/[slug] segment.
-    const homeLink = page.getByTestId('nav-link-home')
+    const projectsNav = page.getByTestId('nav-link-projects')
     for (const project of projects) {
       const card = page.locator(`a[href="${project.href}"]`).first()
       await expect(card).toBeVisible({timeout: 20000})
@@ -46,12 +46,12 @@ test.describe('draft-mode project navigation', () => {
     await page.waitForTimeout(1500)
 
     for (const project of projects) {
-      if (new URL(page.url()).pathname !== '/') {
-        await homeLink.click()
-        await page.waitForURL((url) => new URL(url).pathname === '/', {timeout: 10000})
+      if (new URL(page.url()).pathname !== '/projects') {
+        await projectsNav.click()
+        await page.waitForURL((url) => new URL(url).pathname === '/projects', {timeout: 10000})
         await page.waitForTimeout(500)
       }
-      // Click the showcase card directly from "/" (a client-side navigation).
+      // Click the showcase card directly from "/projects" (a client-side navigation).
       await page.locator(`a[href="${project.href}"]`).first().click()
       await expect(page).toHaveURL(projectUrlPattern(project.href))
       await expect(visibleTitle(page, project.title)).toBeVisible({timeout: 10000})

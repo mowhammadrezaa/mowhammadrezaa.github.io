@@ -17,6 +17,13 @@ export default defineType({
       title: 'Description',
     }),
     defineField({
+      name: 'points',
+      title: 'Points',
+      type: 'array',
+      description: 'Bullet points for this role (e.g. CV responsibilities).',
+      of: [{type: 'string'}],
+    }),
+    defineField({
       name: 'image',
       title: 'Image',
       type: 'image',
@@ -24,6 +31,20 @@ export default defineType({
       options: {
         hotspot: true,
       },
+    }),
+    defineField({
+      name: 'imageLayout',
+      title: 'Image layout',
+      type: 'string',
+      description: 'How the image should fill the media panel.',
+      options: {
+        list: [
+          {title: 'Logo (contain)', value: 'logo'},
+          {title: 'Cover (fill)', value: 'cover'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'logo',
     }),
     defineField({
       name: 'tags',

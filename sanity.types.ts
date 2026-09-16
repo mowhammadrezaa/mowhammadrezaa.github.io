@@ -46,6 +46,7 @@ export type Milestone = {
   _type: "milestone";
   title?: string;
   description?: string;
+  points?: Array<string>;
   image?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -53,6 +54,7 @@ export type Milestone = {
     crop?: SanityImageCrop;
     _type: "image";
   };
+  imageLayout?: "logo" | "cover";
   tags?: Array<string>;
   duration?: Duration;
 };
@@ -86,6 +88,7 @@ export type Project = {
     crop?: SanityImageCrop;
     _type: "image";
   };
+  coverVideoUrl?: string;
   duration?: Duration;
   client?: string;
   site?: string;
@@ -504,39 +507,67 @@ export type LayoutMetadataQueryResult = {
 
 // Source: app/(website)/page.tsx
 // Variable: homePageQuery
-// Query: *[_type == "home"][0]{      _id,      _type,      overview,      showcaseProjects[]{        _key,        ...@->{          _id,          _type,          coverImage,          overview,          "slug": slug.current,          tags,          title,        }      },      title,    }
+// Query: {    "home": *[_type == "home"][0]{      _id,      _type,      overview,      title,    },    "pages": *[_type == "page" && slug.current in ["about", "projects", "education", "work", "skills", "contact"]] | order(      select(        slug.current == "about" => 0,        slug.current == "work" => 1,        slug.current == "projects" => 2,        slug.current == "education" => 3,        slug.current == "skills" => 4,        slug.current == "contact" => 5,        99      ) asc    ) {      _id,      _type,      body,      overview,      title,      "slug": slug.current,    }  }
 export type HomePageQueryResult = {
-  _id: string;
-  _type: "home";
-  overview: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal";
-    listItem?: never;
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }> | null;
-  showcaseProjects: Array<{
-    _key: string;
+  home: {
     _id: string;
-    _type: "project";
-    coverImage: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      _type: "image";
-    } | null;
+    _type: "home";
+    overview: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "normal";
+      listItem?: never;
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }> | null;
+    title: string | null;
+  } | null;
+  pages: Array<{
+    _id: string;
+    _type: "page";
+    body: Array<
+      | ({
+          _key: string;
+        } & Timeline)
+      | {
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }
+      | {
+          asset?: SanityImageAssetReference;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
+          caption?: string;
+          alt?: string;
+          _type: "image";
+          _key: string;
+        }
+    > | null;
     overview: Array<{
       children?: Array<{
         marks?: Array<string>;
@@ -551,12 +582,10 @@ export type HomePageQueryResult = {
       _type: "block";
       _key: string;
     }> | null;
-    slug: string | null;
-    tags: Array<string> | null;
     title: string | null;
-  }> | null;
-  title: string | null;
-} | null;
+    slug: string | null;
+  }>;
+};
 
 // Source: app/(website)/projects/[slug]/page.tsx
 // Variable: projectSlugPageMetadataQuery
@@ -575,7 +604,7 @@ export type ProjectSlugPageMetadataQueryResult = {
 
 // Source: app/(website)/projects/[slug]/page.tsx
 // Variable: projectSlugPageQuery
-// Query: *[_type == "project" && slug.current == $slug][0] {      _id,      _type,      client,      coverImage,      description,      duration,      overview,      site,      "slug": slug.current,      tags,      title,    }
+// Query: *[_type == "project" && slug.current == $slug][0] {      _id,      _type,      client,      coverImage,      coverVideoUrl,      description,      duration,      overview,      site,      "slug": slug.current,      tags,      title,    }
 export type ProjectSlugPageQueryResult = {
   _id: string;
   _type: "project";
@@ -587,6 +616,7 @@ export type ProjectSlugPageQueryResult = {
     crop?: SanityImageCrop;
     _type: "image";
   } | null;
+  coverVideoUrl: string | null;
   description: Array<
     | ({
         _key: string;
@@ -638,6 +668,37 @@ export type ProjectSlugPageQueryResult = {
   site: string | null;
   slug: string | null;
   tags: Array<string> | null;
+  title: string | null;
+} | null;
+
+// Source: app/(website)/projects/page.tsx
+// Variable: projectsPageMetadataQuery
+// Query: *[_type == "page" && slug.current == "projects"][0] {      title,      "overview": pt::text(overview),    }
+export type ProjectsPageMetadataQueryResult = {
+  title: string | null;
+  overview: string;
+} | null;
+
+// Source: app/(website)/projects/page.tsx
+// Variable: projectsPageQuery
+// Query: *[_type == "page" && slug.current == "projects"][0] {      _id,      _type,      overview,      title,    }
+export type ProjectsPageQueryResult = {
+  _id: string;
+  _type: "page";
+  overview: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: never;
+    markDefs?: null;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
   title: string | null;
 } | null;
 
@@ -695,6 +756,43 @@ export type SettingsQueryResult = {
 } | null;
 
 // Source: sanity/lib/queries.ts
+// Variable: showcaseProjectsQuery
+// Query: *[_type == "home"][0]{    _id,    showcaseProjects[]{      _key,      ...@->{        _id,        _type,        coverImage,        coverVideoUrl,        overview,        "slug": slug.current,        tags,        title,      }    }  }
+export type ShowcaseProjectsQueryResult = {
+  _id: string;
+  showcaseProjects: Array<{
+    _key: string;
+    _id: string;
+    _type: "project";
+    coverImage: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+    coverVideoUrl: string | null;
+    overview: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "normal";
+      listItem?: never;
+      markDefs?: null;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }> | null;
+    slug: string | null;
+    tags: Array<string> | null;
+    title: string | null;
+  }> | null;
+} | null;
+
+// Source: sanity/lib/queries.ts
 // Variable: slugsByTypeQuery
 // Query: *[_type == $type && defined(slug.current)]{"slug": slug.current}
 export type SlugsByTypeQueryResult = Array<{
@@ -707,10 +805,13 @@ declare global {
     '\n    *[_type == "page" && slug.current == $slug][0] {\n      title,\n      "overview": pt::text(overview),\n    }\n  ': SlugPageMetadataQueryResult;
     '\n    *[_type == "page" && slug.current == $slug][0] {\n      _id,\n      _type,\n      body,\n      overview,\n      title,\n      "slug": slug.current,\n    }\n  ': SlugPageQueryResult;
     '{\n    "settings": *[_type == "settings"][0]{ogImage},\n    "home": *[_type == "home"][0]{\n      title,\n      "overview": pt::text(overview),\n    }\n  }': LayoutMetadataQueryResult;
-    '\n    *[_type == "home"][0]{\n      _id,\n      _type,\n      overview,\n      showcaseProjects[]{\n        _key,\n        ...@->{\n          _id,\n          _type,\n          coverImage,\n          overview,\n          "slug": slug.current,\n          tags,\n          title,\n        }\n      },\n      title,\n    }\n  ': HomePageQueryResult;
+    '\n  {\n    "home": *[_type == "home"][0]{\n      _id,\n      _type,\n      overview,\n      title,\n    },\n    "pages": *[_type == "page" && slug.current in ["about", "projects", "education", "work", "skills", "contact"]] | order(\n      select(\n        slug.current == "about" => 0,\n        slug.current == "work" => 1,\n        slug.current == "projects" => 2,\n        slug.current == "education" => 3,\n        slug.current == "skills" => 4,\n        slug.current == "contact" => 5,\n        99\n      ) asc\n    ) {\n      _id,\n      _type,\n      body,\n      overview,\n      title,\n      "slug": slug.current,\n    }\n  }\n': HomePageQueryResult;
     '\n    *[_type == "project" && slug.current == $slug][0] {\n      coverImage,\n      title,\n      "overview": pt::text(overview),\n    }\n  ': ProjectSlugPageMetadataQueryResult;
-    '\n    *[_type == "project" && slug.current == $slug][0] {\n      _id,\n      _type,\n      client,\n      coverImage,\n      description,\n      duration,\n      overview,\n      site,\n      "slug": slug.current,\n      tags,\n      title,\n    }\n  ': ProjectSlugPageQueryResult;
+    '\n    *[_type == "project" && slug.current == $slug][0] {\n      _id,\n      _type,\n      client,\n      coverImage,\n      coverVideoUrl,\n      description,\n      duration,\n      overview,\n      site,\n      "slug": slug.current,\n      tags,\n      title,\n    }\n  ': ProjectSlugPageQueryResult;
+    '\n    *[_type == "page" && slug.current == "projects"][0] {\n      title,\n      "overview": pt::text(overview),\n    }\n  ': ProjectsPageMetadataQueryResult;
+    '\n    *[_type == "page" && slug.current == "projects"][0] {\n      _id,\n      _type,\n      overview,\n      title,\n    }\n  ': ProjectsPageQueryResult;
     '\n  *[_type == "settings"][0]{\n    _id,\n    _type,\n    footer,\n    menuItems[]{\n      _key,\n      ...@->{\n        _type,\n        "slug": slug.current,\n        title\n      }\n    },\n    ogImage,\n  }\n': SettingsQueryResult;
+    '\n  *[_type == "home"][0]{\n    _id,\n    showcaseProjects[]{\n      _key,\n      ...@->{\n        _id,\n        _type,\n        coverImage,\n        coverVideoUrl,\n        overview,\n        "slug": slug.current,\n        tags,\n        title,\n      }\n    }\n  }\n': ShowcaseProjectsQueryResult;
     '\n  *[_type == $type && defined(slug.current)]{"slug": slug.current}\n': SlugsByTypeQueryResult;
   }
 }

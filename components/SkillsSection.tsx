@@ -117,40 +117,31 @@ export function SkillsSection({id, type, title, overview}: SkillsSectionProps) {
         </div>
       )}
 
-      <div className="mt-12 divide-y divide-black/[0.08] border-y border-black/[0.08]">
+      <div className="mt-8 divide-y divide-black/[0.08] border-y border-black/[0.08]">
         {SKILL_GROUPS.map((group) => (
           <section
             key={group.label}
-            className="grid gap-3 py-7 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-10 md:py-8"
+            className="grid gap-1.5 py-3.5 md:grid-cols-[9.5rem_minmax(0,1fr)] md:items-baseline md:gap-6 md:py-4"
           >
-            <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400 md:pt-1">
+            <h2 className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.16em] text-gray-400">
               {group.label}
             </h2>
-            <ul className="flex flex-wrap items-center gap-x-1 gap-y-2 font-mono text-sm text-gray-700 md:text-[0.95rem]">
-              {group.items.map((item, index) => (
-                <li key={item} className="flex items-center gap-x-1">
-                  {index > 0 && (
-                    <span className="text-gray-300" aria-hidden>
-                      ·
-                    </span>
-                  )}
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+            <p className="font-mono text-[0.8125rem] leading-relaxed text-gray-700 md:text-sm">
+              {group.items.join(' · ')}
+            </p>
           </section>
         ))}
       </div>
 
-      <section className="mt-12">
-        <h2 className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
+      <section className="mt-8">
+        <h2 className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.16em] text-gray-400">
           Certifications
         </h2>
-        <ul className="mt-5 space-y-3">
+        <ul className="mt-3 space-y-1.5">
           {CERTIFICATIONS.map((cert) => (
             <li
               key={cert}
-              className="border-l-2 border-black/15 pl-4 font-serif text-base leading-relaxed text-gray-700 md:text-lg"
+              className="border-l-2 border-black/15 pl-3 font-serif text-sm leading-snug text-gray-700 md:text-[0.95rem]"
             >
               {cert}
             </li>
@@ -158,20 +149,20 @@ export function SkillsSection({id, type, title, overview}: SkillsSectionProps) {
         </ul>
       </section>
 
-      <div className="mt-12 grid gap-8 border-t border-black/[0.08] pt-10 md:grid-cols-2 md:gap-12">
+      <div className="mt-8 grid gap-5 border-t border-black/[0.08] pt-6 md:grid-cols-2 md:gap-8">
         <aside>
-          <p className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
+          <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.16em] text-gray-400">
             Spoken languages
           </p>
-          <p className="mt-3 font-serif text-base text-gray-700 md:text-lg">
+          <p className="mt-2 font-serif text-sm text-gray-700 md:text-[0.95rem]">
             English (C1), Italian (A1)
           </p>
         </aside>
         <aside>
-          <p className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
+          <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.16em] text-gray-400">
             Focus areas
           </p>
-          <p className="mt-3 font-serif text-base text-gray-700 md:text-lg">
+          <p className="mt-2 font-serif text-sm text-gray-700 md:text-[0.95rem]">
             Edge AI, Computer Vision, Real-time Inference, AI Platform / Serving
           </p>
         </aside>
