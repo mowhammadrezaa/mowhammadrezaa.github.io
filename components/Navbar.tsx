@@ -40,17 +40,16 @@ export function Navbar(props: NavbarProps) {
 
   const mobileItems: MobileNavItem[] = navItems.flatMap((menuItem) => {
     const href = resolveHref(menuItem?._type, menuItem?.slug)
-    if (!href) return []
+    if (!href || !menuItem._key) return []
     return [
       {
-        key: menuItem._key as string,
+        key: menuItem._key,
         href,
         title: stegaClean(menuItem.title) || href,
         prefetch: true,
-        sanityAttr: dataAttribute?.([
-          'menuItems',
-          {_key: menuItem._key as unknown as string},
-        ]) as string | undefined,
+        sanityAttr: dataAttribute?.(['menuItems', {_key: menuItem._key}]) as
+          | string
+          | undefined,
       },
     ]
   })
