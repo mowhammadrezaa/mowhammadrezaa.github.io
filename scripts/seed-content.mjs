@@ -11,7 +11,8 @@ import {randomBytes} from 'node:crypto'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
-const assetsDir = join(root, 'public/migrate-assets')
+const assetsDir = join(root, 'scripts/assets')
+const legacyAssetsDir = join(root, 'public/migrate-assets')
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
@@ -65,14 +66,18 @@ function bulletList(items) {
   }))
 }
 
-function linkBlock(label, href) {
+function linkBlock(label, href, {before = '', after = ''} = {}) {
   const markKey = key()
+  const children = []
+  if (before) children.push({_type: 'span', _key: key(), text: before, marks: []})
+  children.push({_type: 'span', _key: key(), text: label, marks: [markKey]})
+  if (after) children.push({_type: 'span', _key: key(), text: after, marks: []})
   return {
     _type: 'block',
     _key: key(),
     style: 'normal',
     markDefs: [{_type: 'link', _key: markKey, href}],
-    children: [{_type: 'span', _key: key(), text: label, marks: [markKey]}],
+    children,
   }
 }
 
@@ -198,7 +203,7 @@ const projects = [
     site: 'https://passateoria.it',
     tags: ['EdTech', 'React Native', 'Expo', 'Full-Stack'],
     duration: {start: '2026-06-01', end: null},
-    cover: 'intro.jpg',
+    cover: 'passateoria-cover.jpg',
     bullets: [
       'Founded and shipped PassaTeoria for patente A1/A/B with web, Android, and iOS from one Expo / React Native codebase.',
       'Built a database-first content platform: 25-lesson course, 7,139 quizzes, and a 4,500+ term dictionary with multilingual support.',
@@ -283,22 +288,26 @@ const projects = [
 async function main() {
   console.log('Seeding Sanity project', projectId, dataset)
 
-  const introImage = await uploadImage(join(assetsDir, 'intro.jpg'))
-  const educationImage = await uploadImage(join(assetsDir, 'education.jpg'))
-  const workImage = await uploadImage(join(assetsDir, 'work-experience.png'))
+  const introImage =
+    (await uploadImage(join(assetsDir, 'about-portrait.png'))) ||
+    (await uploadImage(join(legacyAssetsDir, 'intro.jpg')))
+  const educationImage = await uploadImage(join(legacyAssetsDir, 'education.jpg'))
+  const workImage = await uploadImage(join(legacyAssetsDir, 'work-experience.png'))
 
   const coverCache = {}
-  for (const name of ['intro.jpg', 'education.jpg', 'work-experience.png']) {
-    const path = join(assetsDir, name)
-    coverCache[name] =
-      name === 'intro.jpg'
-        ? introImage
-        : name === 'education.jpg'
-          ? educationImage
-          : workImage
-    if (!coverCache[name] && existsSync(path)) {
-      coverCache[name] = await uploadImage(path)
-    }
+  for (const name of [
+    'intro.jpg',
+    'education.jpg',
+    'work-experience.png',
+    'passateoria-cover.jpg',
+    'about-portrait.png',
+  ]) {
+    const path = [join(assetsDir, name), join(legacyAssetsDir, name)].find((p) => existsSync(p))
+    if (name === 'about-portrait.png' && introImage) coverCache[name] = introImage
+    else if (name === 'intro.jpg' && introImage) coverCache[name] = introImage
+    else if (name === 'education.jpg' && educationImage) coverCache[name] = educationImage
+    else if (name === 'work-experience.png' && workImage) coverCache[name] = workImage
+    else if (path) coverCache[name] = await uploadImage(path)
   }
 
   // Projects
@@ -338,7 +347,7 @@ async function main() {
     slug: {_type: 'slug', current: 'about'},
     overview: [
       block(
-        'Applied AI Engineer with 3+ years deploying production computer vision and NLP solutions.',
+        'Edge AI / Computer Vision engineer focused on real-time vision systems — from model optimization to production serving on edge devices and Kubernetes.',
       ),
     ],
     body: [
@@ -352,23 +361,20 @@ async function main() {
             },
           ]
         : []),
-      ...blocksFromParagraphs([
-        'Oh hello there!',
-        'I am an Artificial Intelligence Specialist with several years of experience in Python — for my friends, still the person who speaks more in code than words.',
-        'Applied AI Engineer with 3+ years of experience deploying production AI solutions in computer vision and NLP. Proven track record of translating business requirements into technical specifications and delivering scalable AI systems. Expert in Python, PyTorch, and TensorFlow with client-facing experience integrating AI models into production environments.',
-        'Dutch Orientation Year (Zoekjaar) through July 30, 2027 — no sponsorship required to start immediately.',
-      ]),
-      block('What I’m proud to have accomplished:'),
-      ...bulletList([
-        'AI Model Integration into Unreal Engine (Obsidian Gateway) — real-time AI vision pipeline for immersive experiences.',
-        'Synthetic Medical Image Generation — synthetic clinical imagery for research and AI-driven solutions.',
-        'Abbreviation Disambiguation in Medical NLP — precise interpretation of clinical abbreviations.',
-        'Production edge CV pipelines at AWENTIA (Hailo, DeepStream, Triton) and PassaTeoria EdTech product.',
-      ]),
-      ...blocksFromParagraphs([
-        'I thrive on learning new things and diving into fresh challenges. I’m precise, take deadlines seriously, and automate anything repetitive.',
-        'Thanks for visiting — feel free to reach out via the Contact page.',
-      ]),
+      block(
+        'I’m currently a Computer Vision Engineer at Awentia, where I build C++/GStreamer pipelines on Hailo and NVIDIA stacks (DeepStream, TensorRT, OpenVINO) and deploy models with Triton Inference Server. Recent impact includes reducing manual dataset collection effort by ~40%, cutting deployment time by ~60% through CI/CD, and delivering stable real-time pipelines (e.g. multi-class safety detection at ~30 FPS end-to-end).',
+      ),
+      linkBlock('passateoria.it', 'https://passateoria.it', {
+        before: 'In parallel, I’m founding and shipping PassaTeoria (',
+        after:
+          '), a cross-platform EdTech product (web, Android, iOS) for the Italian driving theory exam — owning product, full-stack delivery, billing, and cloud operations end to end.',
+      }),
+      block(
+        'Dutch Orientation Year (Zoekjaar) valid through 30 July 2027 — work freely permitted (TWV not required). Available immediately and open to relocating within the Netherlands / EU for on-site or hybrid Edge AI, Computer Vision, or AI platform/serving roles.',
+      ),
+      block(
+        'Core stack: Python, C++, PyTorch, TensorRT, DeepStream, GStreamer, Triton, Docker, Kubernetes, Hailo, Jetson, GCP, CI/CD.',
+      ),
     ],
   }
 
@@ -499,50 +505,20 @@ async function main() {
     ],
   }
 
-  const researchPage = {
-    _id: 'page-research',
-    _type: 'page',
-    title: 'Research Interests',
-    slug: {_type: 'slug', current: 'research'},
-    overview: [
-      block('Computer vision, generative AI, medical NLP, secure AI systems, and AI in game engines.'),
-    ],
-    body: [
-      block(
-        'My research interests span Artificial Intelligence, software engineering, and automation. I am particularly passionate about:',
-      ),
-      ...bulletList([
-        'Computer Vision and 3D Reconstruction — image recognition, object detection, and 3D scene reconstruction for medical and entertainment contexts.',
-        'Generative AI and Transformers — ControlNet and LLMs for creative content generation and language understanding.',
-        'NLP in Medical Context — medical terminology, clinical communication, and abbreviation disambiguation.',
-        'Network Security — secure integration of AI systems with privacy and robustness against threats.',
-        'Backend Development and Automation — robust backends and workflow automation with AI capabilities.',
-        'Web Scraping and Data Collection — ethical data collection for model training.',
-        'Integration of AI into Gaming Engines — Unreal Engine and Unity for adaptive gameplay.',
-      ]),
-      block(
-        'I am especially interested in bridging research and practical applications — real-time AI systems, automation, and generative AI for real-world challenges.',
-      ),
-    ],
-  }
-
   const contactPage = {
     _id: 'page-contact',
     _type: 'page',
     title: 'Contact',
     slug: {_type: 'slug', current: 'contact'},
-    overview: [block('Get in touch via email, LinkedIn, or GitHub.')],
-    body: [
-      block('I’d love to hear from you. Reach me through any of these channels:'),
-      linkBlock('Email: mohammadrez.hossein3@unibo.it', 'mailto:mohammadrez.hossein3@unibo.it'),
-      linkBlock('LinkedIn: mohammadreza-hosseini', 'https://linkedin.com/in/mohammadreza-hosseini'),
-      linkBlock('GitHub: mowhammadrezaa', 'https://github.com/mowhammadrezaa'),
-      linkBlock('Instagram', 'https://www.instagram.com/mohammadreza.hosseini.88'),
-      block('Available immediately · Willing to relocate · Dutch Zoekjaar through Jul 2027'),
+    overview: [
+      block(
+        'Reach out by email, phone, or social — happy to talk about Edge AI, computer vision, and product work.',
+      ),
     ],
+    body: [block('Contact details are shown on this page with one-click copy.')],
   }
 
-  const pages = [aboutPage, educationPage, workPage, skillsPage, researchPage, contactPage]
+  const pages = [aboutPage, educationPage, workPage, skillsPage, contactPage]
 
   const home = {
     _id: 'home',
@@ -562,7 +538,6 @@ async function main() {
     {_type: 'reference', _ref: 'page-education', _key: key()},
     {_type: 'reference', _ref: 'page-work', _key: key()},
     {_type: 'reference', _ref: 'page-skills', _key: key()},
-    {_type: 'reference', _ref: 'page-research', _key: key()},
     {_type: 'reference', _ref: 'page-contact', _key: key()},
   ]
 

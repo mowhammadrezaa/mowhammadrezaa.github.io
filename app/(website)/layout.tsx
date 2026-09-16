@@ -6,9 +6,9 @@ import {draftMode} from 'next/headers'
 import {Suspense} from 'react'
 import {Toaster} from 'sonner'
 
-import {CustomPortableText} from '@/components/CustomPortableText'
 import {DraftModeProvider} from '@/components/DraftModeContext'
 import {Navbar} from '@/components/Navbar'
+import {SiteFooter} from '@/components/SiteFooter'
 import {
   getDynamicFetchOptions,
   liveWaitFor,
@@ -120,12 +120,16 @@ function NavbarFallback() {
   return (
     <header
       aria-busy
-      className="sticky top-0 z-10 flex flex-wrap items-center gap-x-5 bg-white/80 px-4 py-4 backdrop-blur md:px-16 md:py-5 lg:px-32"
+      className="sticky top-0 z-50 border-b border-black/[0.06] bg-white/85 backdrop-blur-md"
       data-testid="site-header"
     >
-      <span className="text-lg md:text-xl" aria-hidden>
-        <span className="inline-block h-[1em] w-24 animate-pulse rounded bg-gray-200 align-middle md:w-32" />
-      </span>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 md:gap-6 md:px-16 md:py-5 lg:px-32">
+        <span className="font-serif text-xl tracking-tight md:text-2xl" aria-hidden>
+          <span className="inline-block h-[1em] w-28 animate-pulse rounded bg-gray-200 align-middle md:w-52" />
+        </span>
+        <span className="inline-block h-10 w-10 animate-pulse rounded border border-gray-200 lg:hidden" aria-hidden />
+        <span className="hidden h-[1em] w-64 animate-pulse rounded bg-gray-100 lg:inline-block" aria-hidden />
+      </div>
     </header>
   )
 }
@@ -137,22 +141,7 @@ async function DynamicFooter() {
 
 async function CachedFooter({perspective, stega}: DynamicFetchOptions) {
   'use cache'
-  const data = await fetchSettings({perspective, stega})
-  if (!Array.isArray(data?.footer)) {
-    return null
-  }
-  return (
-    <footer
-      className="bottom-0 w-full bg-white py-12 text-center md:py-20"
-      data-testid="site-footer"
-    >
-      <CustomPortableText
-        id={data._id}
-        type={data._type}
-        path={['footer']}
-        paragraphClasses="text-md md:text-xl"
-        value={data.footer}
-      />
-    </footer>
-  )
+  // Keep settings fetch so footer revalidates with other shared chrome when content changes.
+  await fetchSettings({perspective, stega})
+  return <SiteFooter />
 }

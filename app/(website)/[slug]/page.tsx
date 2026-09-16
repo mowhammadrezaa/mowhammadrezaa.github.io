@@ -2,8 +2,11 @@ import type {Metadata, ResolvingMetadata} from 'next'
 import {defineQuery} from 'next-sanity'
 import {notFound} from 'next/navigation'
 
+import {AboutSection} from '@/components/AboutSection'
+import {ContactSection} from '@/components/ContactSection'
 import {CustomPortableText} from '@/components/CustomPortableText'
 import {Header} from '@/components/Header'
+import {SkillsSection} from '@/components/SkillsSection'
 import {
   getDynamicFetchOptions,
   sanityFetch,
@@ -76,7 +79,41 @@ async function CachedSlugPage({
 
   if (!data?._id) notFound()
 
-  const {body, overview, title} = data ?? {}
+  const {body, overview, title, slug: pageSlug} = data ?? {}
+
+  if (pageSlug === 'about') {
+    return (
+      <AboutSection
+        id={data?._id || null}
+        type={data?._type || null}
+        title={title}
+        overview={overview}
+        body={body}
+      />
+    )
+  }
+
+  if (pageSlug === 'contact') {
+    return (
+      <ContactSection
+        id={data?._id || null}
+        type={data?._type || null}
+        title={title}
+        overview={overview}
+      />
+    )
+  }
+
+  if (pageSlug === 'skills') {
+    return (
+      <SkillsSection
+        id={data?._id || null}
+        type={data?._type || null}
+        title={title}
+        overview={overview}
+      />
+    )
+  }
 
   return (
     <>

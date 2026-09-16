@@ -7,13 +7,20 @@ const imageBuilder = createImageUrlBuilder({
   dataset: dataset || '',
 })
 
-export const urlForImage = (source: SanityImageSource | null | undefined) => {
+export const urlForImage = (
+  source: SanityImageSource | null | undefined,
+  options?: {preserveAlpha?: boolean},
+) => {
   // Ensure that source image contains a valid reference
   if (typeof source === 'string' || !source || ('asset' in source && !source?.asset?._ref)) {
     return undefined
   }
 
-  return imageBuilder?.image(source).auto('format').fit('max')
+  const builder = imageBuilder?.image(source).fit('max')
+  if (options?.preserveAlpha) {
+    return builder?.format('png')
+  }
+  return builder?.auto('format')
 }
 
 export function urlForOpenGraphImage(image: SanityImageSource | null | undefined) {

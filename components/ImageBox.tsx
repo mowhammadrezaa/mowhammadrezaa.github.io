@@ -10,6 +10,9 @@ interface ImageBoxProps {
   'height'?: number
   'size'?: string
   'classesWrapper'?: string
+  'preserveAlpha'?: boolean
+  'quality'?: number
+  'unoptimized'?: boolean
   'data-sanity'?: string
 }
 
@@ -20,22 +23,32 @@ export default function ImageBox({
   height = 2000,
   size = '100vw',
   classesWrapper,
+  preserveAlpha = false,
+  quality,
+  unoptimized = false,
   ...props
 }: ImageBoxProps) {
-  const imageUrl = image && urlForImage(image)?.height(height).width(width).fit('crop').url()
+  const builder = preserveAlpha
+    ? urlForImage(image, {preserveAlpha: true})?.height(height).width(width)
+    : urlForImage(image)?.height(height).width(width).fit('crop')
+  const imageUrl = builder?.url()
 
   return (
     <div
-      className={`w-full overflow-hidden rounded-[3px] bg-gray-50 ${classesWrapper}`}
+      className={`w-full overflow-hidden rounded-[3px] ${
+        preserveAlpha ? 'bg-transparent' : 'bg-gray-50'
+      } ${classesWrapper}`}
       data-sanity={props['data-sanity']}
     >
       {imageUrl && (
         <Image
-          className="absolute h-full w-full"
+          className={`absolute h-full w-full ${preserveAlpha ? 'object-contain' : 'object-cover'}`}
           alt={alt}
           width={width}
           height={height}
           sizes={size}
+          quality={quality ?? (preserveAlpha ? 100 : 75)}
+          unoptimized={unoptimized}
           src={imageUrl}
         />
       )}

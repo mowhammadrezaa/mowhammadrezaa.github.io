@@ -11,15 +11,20 @@ export function TimelineItem({milestone}: {milestone: Milestone}) {
       <div className="flex flex-col">
         {/* Thumbnail */}
         <div
-          className="relative overflow-hidden rounded-md bg-black"
+          className="relative overflow-hidden rounded-md bg-transparent"
           style={{width: '65px', height: '65px'}}
         >
           <ImageBox
             image={image}
             alt={title || 'Timeline item icon'}
-            size="10vw"
-            width={65}
-            height={65}
+            size="65px"
+            // Request 3× assets so icons stay sharp on retina displays
+            width={195}
+            height={195}
+            quality={100}
+            unoptimized
+            preserveAlpha
+            classesWrapper="absolute inset-0"
           />
         </div>
         {/* Vertical line */}
