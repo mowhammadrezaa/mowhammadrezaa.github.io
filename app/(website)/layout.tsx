@@ -9,6 +9,7 @@ import {Toaster} from 'sonner'
 import {DraftModeProvider} from '@/components/DraftModeContext'
 import {Navbar} from '@/components/Navbar'
 import {SiteFooter} from '@/components/SiteFooter'
+import {SiteResumeChat} from '@/components/SiteResumeChat'
 import {
   getDynamicFetchOptions,
   liveWaitFor,
@@ -87,6 +88,7 @@ export default async function PersonalLayout({children}: LayoutProps<'/'>) {
         </>
       )}
       <SpeedInsights />
+      <SiteResumeChat />
     </DraftModeProvider>
   )
 }

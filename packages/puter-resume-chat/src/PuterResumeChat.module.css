@@ -1,0 +1,437 @@
+.root {
+  --prc-bg: #ffffff;
+  --prc-fg: #0a0a0a;
+  --prc-muted: #6b6b6b;
+  --prc-line: rgba(0, 0, 0, 0.1);
+  --prc-soft: #f6f6f4;
+  --prc-accent: #111111;
+  --prc-radius: 18px;
+  --prc-shadow: 0 24px 60px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.06);
+  --prc-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --prc-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --prc-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  position: fixed;
+  inset: auto 1.1rem 1.1rem auto;
+  z-index: 80;
+  font-family: var(--prc-sans);
+  color: var(--prc-fg);
+}
+
+.launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid var(--prc-line);
+  background: var(--prc-fg);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.85rem 1.15rem 0.85rem 0.95rem;
+  box-shadow: var(--prc-shadow);
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  animation: prc-rise 420ms ease both;
+}
+
+.launcher:hover {
+  transform: translateY(-2px);
+  background: #222;
+}
+
+.launcher:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 3px;
+}
+
+.launcherIcon {
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #000;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.launcherLabel {
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.panel {
+  width: min(420px, calc(100vw - 1.5rem));
+  height: min(640px, calc(100dvh - 2rem));
+  display: flex;
+  flex-direction: column;
+  background: var(--prc-bg);
+  border: 1px solid var(--prc-line);
+  border-radius: var(--prc-radius);
+  box-shadow: var(--prc-shadow);
+  overflow: hidden;
+  animation: prc-panel 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.15rem 0.95rem;
+  border-bottom: 1px solid var(--prc-line);
+  background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--prc-muted);
+}
+
+.title {
+  margin: 0.35rem 0 0;
+  font-family: var(--prc-serif);
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.subtitle {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--prc-muted);
+}
+
+.close {
+  border: 1px solid var(--prc-line);
+  background: #fff;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--prc-muted);
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.close:hover {
+  background: var(--prc-soft);
+  color: var(--prc-fg);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.05rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(0, 0, 0, 0.03), transparent 55%),
+    var(--prc-bg);
+}
+
+.intro {
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--prc-line);
+  border-radius: 14px;
+  background: var(--prc-soft);
+  animation: prc-fade 360ms ease both;
+}
+
+.introText {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.suggestionsBar {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  padding: 0.65rem 0.95rem 0.15rem;
+  overflow-x: auto;
+  border-top: 1px solid var(--prc-line);
+  background: #fff;
+  scrollbar-width: thin;
+}
+
+.suggestionsBar .suggestion {
+  flex: 0 0 auto;
+  max-width: 16rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion {
+  border: 1px solid var(--prc-line);
+  background: #fff;
+  color: var(--prc-fg);
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+
+.suggestion:hover:not(:disabled) {
+  border-color: #111;
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.suggestion:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.bubble {
+  max-width: 92%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  word-break: break-word;
+  animation: prc-fade 240ms ease both;
+}
+
+.bubbleUser {
+  align-self: flex-end;
+  background: var(--prc-accent);
+  color: #fff;
+  border-bottom-right-radius: 5px;
+  white-space: pre-wrap;
+}
+
+.bubbleAssistant {
+  align-self: flex-start;
+  background: #fff;
+  border: 1px solid var(--prc-line);
+  color: var(--prc-fg);
+  border-bottom-left-radius: 5px;
+}
+
+.bubbleError {
+  align-self: stretch;
+  background: #fff7f7;
+  border: 1px solid #efc4c4;
+  color: #7a1f1f;
+  white-space: pre-wrap;
+}
+
+.markdown {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown p,
+.markdown ul,
+.markdown ol {
+  margin: 0;
+}
+
+.markdown ul,
+.markdown ol {
+  padding-left: 1.15rem;
+}
+
+.markdown li + li {
+  margin-top: 0.2rem;
+}
+
+.markdown strong {
+  font-weight: 650;
+}
+
+.markdown a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown code {
+  font-family: var(--prc-mono);
+  font-size: 0.84em;
+  background: var(--prc-soft);
+  padding: 0.08em 0.3em;
+  border-radius: 4px;
+}
+
+.markdown pre {
+  margin: 0;
+  overflow-x: auto;
+  background: var(--prc-soft);
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+}
+
+.markdown pre code {
+  background: none;
+  padding: 0;
+}
+
+.typing {
+  display: inline-flex;
+  gap: 0.28rem;
+  align-items: center;
+  min-height: 1.2em;
+}
+
+.typing span {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: #bbb;
+  animation: prc-dot 1s infinite ease-in-out;
+}
+
+.typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.composer {
+  display: flex;
+  gap: 0.55rem;
+  padding: 0.7rem 0.95rem 0.95rem;
+  background: #fff;
+}
+
+.composerSolo {
+  border-top: 1px solid var(--prc-line);
+  padding-top: 0.85rem;
+}
+
+.input {
+  flex: 1;
+  min-height: 2.6rem;
+  max-height: 7rem;
+  resize: none;
+  border: 1px solid var(--prc-line);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  background: var(--prc-soft);
+  color: var(--prc-fg);
+}
+
+.input:focus {
+  outline: 2px solid rgba(0, 0, 0, 0.35);
+  outline-offset: 1px;
+  background: #fff;
+}
+
+.send {
+  border: none;
+  background: var(--prc-fg);
+  color: #fff;
+  border-radius: 12px;
+  padding: 0 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.send:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@keyframes prc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes prc-panel {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes prc-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes prc-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@media (max-width: 480px) {
+  .root {
+    inset: auto 0.65rem 0.65rem auto;
+  }
+
+  .panel {
+    width: min(100vw - 1.1rem, 420px);
+    height: min(78dvh, 640px);
+  }
+
+  .launcherLabel {
+    display: none;
+  }
+
+  .launcher {
+    padding: 0.9rem;
+  }
+}

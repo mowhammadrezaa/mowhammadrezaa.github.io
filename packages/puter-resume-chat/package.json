@@ -1,0 +1,31 @@
+{
+  "name": "puter-resume-chat",
+  "version": "1.0.0",
+  "description": "A beautiful, reusable Puter.js chatbot that answers questions about a person using a resume/knowledge base.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/PuterResumeChat.module.css"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18",
+    "react-markdown": ">=9"
+  },
+  "keywords": [
+    "puter",
+    "puter.js",
+    "chatbot",
+    "resume",
+    "portfolio",
+    "react",
+    "ai"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mowhammadrezaa/mowhammadrezaa.github.io",
+    "directory": "packages/puter-resume-chat"
+  }
+}
