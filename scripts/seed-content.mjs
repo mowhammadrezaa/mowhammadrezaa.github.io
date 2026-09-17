@@ -578,7 +578,7 @@ async function main() {
     title: 'Mohammadreza Hosseini',
     overview: [
       block(
-        'Applied AI Engineer — production computer vision & NLP. Building edge AI systems and full-stack products.',
+        'Edge AI / Computer Vision engineer focused on real-time vision systems — from model optimization to production serving on edge devices and Kubernetes.',
       ),
     ],
     showcaseProjects: showcaseRefs,
@@ -599,7 +599,7 @@ async function main() {
     _type: 'settings',
     menuItems,
     footer: [
-      block('Mohammadreza Hosseini · Applied AI Engineer'),
+      block('Mohammadreza Hosseini · Edge AI / Computer Vision'),
       linkBlock('GitHub', 'https://github.com/mowhammadrezaa'),
       linkBlock('LinkedIn', 'https://linkedin.com/in/mohammadreza-hosseini'),
     ],

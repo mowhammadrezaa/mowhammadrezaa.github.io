@@ -63,7 +63,7 @@ export function CustomPortableText({
             id={id}
             type={type}
             path={[...path, {_key}, 'items']}
-            timelines={items}
+            timelines={items as React.ComponentProps<typeof TimelineSection>['timelines']}
           />
         )
       },
