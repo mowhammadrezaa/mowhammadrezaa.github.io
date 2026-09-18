@@ -1,4 +1,5 @@
 import '../globals.css'
+import {GoogleAnalytics} from '@next/third-parties/google'
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import type {Metadata, Viewport} from 'next'
 import {IBM_Plex_Mono, Inter, PT_Serif} from 'next/font/google'
@@ -42,6 +43,9 @@ const mono = IBM_Plex_Mono({
   subsets: ['latin'],
   weight: ['500', '700'],
 })
+const googleAnalyticsId =
+  process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-VGHHSX3DS9'
+const googleAnalyticsEnabled = process.env.NODE_ENV === 'production'
 
 export function generateStaticParams() {
   return locales.map((lang) => ({lang}))
@@ -135,6 +139,7 @@ export default async function PersonalLayout({children, params}: LayoutProps<'/[
           <SiteResumeChat locale={lang} />
         </DraftModeProvider>
       </body>
+      {googleAnalyticsEnabled ? <GoogleAnalytics gaId={googleAnalyticsId} /> : null}
     </html>
   )
 }

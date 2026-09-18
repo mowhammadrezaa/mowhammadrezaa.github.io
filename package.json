@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@next/env": "16.3.4",
+    "@next/third-parties": "^16.3.5",
     "@sanity/client": "8.6.1",
     "@sanity/functions": "1.7.2",
     "@sanity/icons": "5.2.2",
