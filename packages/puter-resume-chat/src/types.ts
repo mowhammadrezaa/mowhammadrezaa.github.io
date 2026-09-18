@@ -27,10 +27,15 @@ export type PuterResumeChatProps = {
   title?: string
   /**
    * Puter model id.
-   * Auth/billing is handled by Puter’s browser SDK for the visitor —
-   * do not pass a site owner API key (none is supported here).
+   * Preferred path bills the site owner via `/api/chat`.
+   * Visitor Puter login is only requested when owner credits are exhausted.
    */
   model?: string
+  /**
+   * Site API route that bills the owner first.
+   * Defaults to `/api/chat`. Set `null` to force visitor-only Puter auth.
+   */
+  ownerChatEndpoint?: string | null
   /** Extra class on the root portal wrapper */
   className?: string
   /** Start open (useful for demos) */
@@ -63,6 +68,10 @@ export type PuterGlobal = {
       | string
     >
   }
+  auth?: {
+    isSignedIn?: () => boolean
+    signIn?: () => Promise<unknown>
+  }
 }
 
 declare global {
@@ -70,4 +79,3 @@ declare global {
     puter?: PuterGlobal
   }
 }
-

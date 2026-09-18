@@ -4,8 +4,9 @@ import {PuterResumeChat} from '@/packages/puter-resume-chat/src'
 import {CHAT_KNOWLEDGE, PERSON_NAME} from '@/lib/mohammadreza-knowledge'
 
 /**
- * Site wrapper: Puter.js runs in the visitor’s browser with their Puter session.
- * No owner API key is configured or required.
+ * Site wrapper for the resume chatbot.
+ * Prefer billing via the owner Puter token (`PUTER_AUTH_TOKEN` → `/api/chat`).
+ * Visitors are asked to sign in with their own Puter account only when owner credits run out.
  */
 export function SiteResumeChat({locale = 'en'}: {locale?: 'nl' | 'en'}) {
   const knowledge = CHAT_KNOWLEDGE[locale]
@@ -17,6 +18,7 @@ export function SiteResumeChat({locale = 'en'}: {locale?: 'nl' | 'en'}) {
       knowledgeBase={knowledge.knowledgeBase}
       suggestedQuestions={[...knowledge.suggestedQuestions]}
       locale={locale}
+      ownerChatEndpoint="/api/chat"
       launcherLabel={isDutch ? 'Vraag over mij' : 'Ask about me'}
       title={isDutch ? 'Vraag over Mohammadreza' : 'Ask about Mohammadreza'}
       intro={

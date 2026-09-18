@@ -141,6 +141,7 @@ export function PuterResumeChat({
   launcherLabel,
   title,
   model = 'gpt-4o-mini',
+  ownerChatEndpoint = '/api/chat',
   className,
   defaultOpen = false,
 }: PuterResumeChatProps) {
@@ -150,6 +151,7 @@ export function PuterResumeChat({
   const [busy, setBusy] = useState(false)
   const [messages, setMessages] = useState<UiMessage[]>([])
   const [history, setHistory] = useState<ChatMessage[]>([])
+  const [useVisitorBilling, setUseVisitorBilling] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const messageSequence = useRef(0)
@@ -175,6 +177,9 @@ export function PuterResumeChat({
         noResponse: 'Geen antwoord ontvangen. Probeer het opnieuw.',
         temporaryError: 'Er is tijdelijk een probleem met het model. Probeer het opnieuw.',
         unreachable: 'De assistent is niet bereikbaar. Probeer het over een moment opnieuw.',
+        creditsExhausted:
+          'De sitecredits zijn op. Log in met je Puter-account om door te gaan (gebruikerscredits).',
+        signInFailed: 'Puter-login is mislukt of geannuleerd. Probeer het opnieuw.',
       }
     : {
         assistant: 'Resume assistant',
@@ -188,6 +193,9 @@ export function PuterResumeChat({
         noResponse: 'No response received. Please try again.',
         temporaryError: 'The assistant hit a temporary model error. Please try again.',
         unreachable: 'Could not reach the assistant. Try again in a moment.',
+        creditsExhausted:
+          'Site credits are exhausted. Sign in with your Puter account to continue (your credits).',
+        signInFailed: 'Puter sign-in failed or was cancelled. Please try again.',
       }
 
   const messageCount = messages.length
@@ -206,6 +214,68 @@ export function PuterResumeChat({
     }
     return undefined
   }, [open])
+
+  async function completeViaOwnerApi(nextHistory: ChatMessage[]) {
+    if (!ownerChatEndpoint) {
+      return {kind: 'unavailable' as const}
+    }
+
+    const response = await fetch(ownerChatEndpoint, {
+      method: 'POST',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({
+        locale,
+        model,
+        messages: nextHistory.map(({role, content}) => ({role, content})),
+      }),
+    })
+
+    let payload: {answer?: string; code?: string; error?: string} = {}
+    try {
+      payload = (await response.json()) as typeof payload
+    } catch {
+      payload = {}
+    }
+
+    if (response.ok && typeof payload.answer === 'string' && payload.answer.trim()) {
+      return {kind: 'ok' as const, answer: payload.answer.trim()}
+    }
+
+    if (response.status === 402 || payload.code === 'owner_credits_exhausted') {
+      return {kind: 'credits' as const}
+    }
+
+    if (response.status === 503 || payload.code === 'owner_unavailable') {
+      return {kind: 'unavailable' as const}
+    }
+
+    return {
+      kind: 'error' as const,
+      message: payload.error || copy.temporaryError,
+    }
+  }
+
+  async function ensureVisitorSignedIn(puter: PuterGlobal) {
+    if (puter.auth?.isSignedIn?.()) return true
+    if (!puter.auth?.signIn) return false
+    await puter.auth.signIn()
+    return Boolean(puter.auth.isSignedIn?.())
+  }
+
+  async function completeViaVisitor(
+    payload: ChatMessage[],
+    onPartial: (text: string) => void,
+    requireSignIn: boolean,
+  ) {
+    const puter = await loadPuter()
+    if (requireSignIn) {
+      const signedIn = await ensureVisitorSignedIn(puter)
+      if (!signedIn) {
+        throw new Error(copy.signInFailed)
+      }
+    }
+    return completeChat(puter, payload, model, onPartial)
+  }
 
   async function send(raw: string) {
     const text = raw.trim()
@@ -231,12 +301,60 @@ export function PuterResumeChat({
     ]
 
     try {
-      const puter = await loadPuter()
-      const answer = await completeChat(puter, payload, model, (partial) => {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === assistantId ? {...m, content: partial} : m)),
+      let answer = ''
+
+      if (!useVisitorBilling && ownerChatEndpoint) {
+        const ownerResult = await completeViaOwnerApi(nextHistory)
+        if (ownerResult.kind === 'ok') {
+          answer = ownerResult.answer
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantId ? {...m, content: answer} : m)),
+          )
+        } else if (ownerResult.kind === 'credits') {
+          setUseVisitorBilling(true)
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== assistantId),
+            {
+              id: `notice-${sequence}`,
+              role: 'error',
+              content: copy.creditsExhausted,
+            },
+            {id: assistantId, role: 'assistant', content: ''},
+          ])
+          answer = await completeViaVisitor(
+            payload,
+            (partial) => {
+              setMessages((prev) =>
+                prev.map((m) => (m.id === assistantId ? {...m, content: partial} : m)),
+              )
+            },
+            true,
+          )
+        } else if (ownerResult.kind === 'unavailable') {
+          setUseVisitorBilling(true)
+          answer = await completeViaVisitor(
+            payload,
+            (partial) => {
+              setMessages((prev) =>
+                prev.map((m) => (m.id === assistantId ? {...m, content: partial} : m)),
+              )
+            },
+            false,
+          )
+        } else {
+          throw new Error(ownerResult.message)
+        }
+      } else {
+        answer = await completeViaVisitor(
+          payload,
+          (partial) => {
+            setMessages((prev) =>
+              prev.map((m) => (m.id === assistantId ? {...m, content: partial} : m)),
+            )
+          },
+          useVisitorBilling,
         )
-      })
+      }
 
       if (!answer.trim()) {
         throw new Error(copy.noResponse)

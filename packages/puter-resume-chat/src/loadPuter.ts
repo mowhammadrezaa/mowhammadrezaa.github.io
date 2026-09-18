@@ -2,8 +2,8 @@ import type {PuterGlobal} from './types'
 
 /**
  * Loads Puter’s public browser SDK (https://js.puter.com/v2/).
- * Chat calls authenticate as the visiting user — there is no site API key.
- * Visitors sign in / continue via Puter’s own UI when required.
+ * Used as a fallback when the site owner’s Puter credits are exhausted
+ * (or when the owner API is not configured). Visitors may be asked to sign in.
  */
 const PUTER_SCRIPT = 'https://js.puter.com/v2/'
 let loading: Promise<PuterGlobal> | null = null

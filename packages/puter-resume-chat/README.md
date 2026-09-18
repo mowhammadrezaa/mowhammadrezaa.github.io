@@ -7,10 +7,11 @@ Designed for portfolio sites: concise answers, suggested prompts, and a hard sco
 ## Features
 
 - Floating launcher + polished chat panel
-- Streaming replies via `puter.ai.chat`
+- Owner-billed answers via a site API (`/api/chat` + `PUTER_AUTH_TOKEN`) by default
+- Visitor Puter sign-in only when owner credits are exhausted
+- Streaming fallback via browser `puter.ai.chat`
 - System prompt that locks the bot to your person
 - Ready-made example questions
-- Zero site API keys — Puter’s browser SDK authenticates the visiting user
 - Self-contained CSS module (no Tailwind required)
 
 ## Install / use in this repo
@@ -27,12 +28,15 @@ export function SiteChat() {
         'What is Ada known for?',
         'Where did she work?',
       ]}
+      ownerChatEndpoint="/api/chat"
     />
   )
 }
 ```
 
 Mount the client component once in your layout (e.g. next to the footer).
+
+Set `PUTER_AUTH_TOKEN` on the server (never `NEXT_PUBLIC_`) so visitors are billed to your Puter account first.
 
 ## Props
 
@@ -43,7 +47,8 @@ Mount the client component once in your layout (e.g. next to the footer).
 | `suggestedQuestions` | `string[]` | Example chips shown before the first message. |
 | `title` / `subtitle` / `intro` | `string` | Panel copy overrides (`subtitle` hidden if omitted). |
 | `launcherLabel` | `string` | Floating button label. |
-| `model` | `string` | Puter model id (default `gpt-5.4-nano`). |
+| `model` | `string` | Puter model id (default `gpt-4o-mini`). |
+| `ownerChatEndpoint` | `string \| null` | Owner-billed API path (default `/api/chat`). `null` forces visitor-only. |
 | `defaultOpen` | `boolean` | Start with the panel open. |
 
 ## Scope behavior
@@ -54,12 +59,8 @@ The system prompt instructs the model to:
 2. Stay concise and factual to the knowledge base
 3. Decline unrelated questions and restate the bot’s purpose
 
-## Open sourcing
-
-This package is MIT-licensed and intentionally isolated under `packages/puter-resume-chat/`. You can copy the folder into another repo or publish it to npm as `puter-resume-chat`.
-
 ## Notes
 
 - Runs in the browser only (`'use client'`).
-- Uses Puter’s public SDK with visitor sign-in — no owner API key is passed or stored.
+- Prefer owner billing; visitor sign-in is the fallback.
 - Keep `knowledgeBase` updated when the resume changes.
