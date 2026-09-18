@@ -21,12 +21,14 @@ export async function ProjectsSection({
   perspective,
   stega,
   locale = 'en',
+  headingAs = 'h1',
 }: {
   id: string | null
   type: string | null
   title?: string | null
   overview?: ProjectsOverview
   locale?: 'nl' | 'en'
+  headingAs?: 'h1' | 'h2'
 } & DynamicFetchOptions) {
   const {data: home} = await sanityFetch({
     query: showcaseProjectsQuery,
@@ -54,6 +56,7 @@ export async function ProjectsSection({
         title={title || (isDutch ? 'Projecten' : 'Projects')}
         description={overview}
         locale={locale}
+        as={headingAs}
       />
 
       <div className="mx-auto max-w-[100rem] rounded-md border">

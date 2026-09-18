@@ -51,9 +51,17 @@ interface ContactSectionProps {
   title?: string | null
   overview?: PortableValue | null
   locale?: 'nl' | 'en'
+  headingAs?: 'h1' | 'h2'
 }
 
-export function ContactSection({id, type, title, overview, locale = 'en'}: ContactSectionProps) {
+export function ContactSection({
+  id,
+  type,
+  title,
+  overview,
+  locale = 'en',
+  headingAs: Heading = 'h1',
+}: ContactSectionProps) {
   const isDutch = locale === 'nl'
   const labels: Record<string, string> = isDutch ? {Email: 'E-mail', Phone: 'Telefoon'} : {}
   return (
@@ -62,12 +70,12 @@ export function ContactSection({id, type, title, overview, locale = 'en'}: Conta
         {isDutch ? 'Neem contact op' : 'Get in touch'}
       </p>
       {title && (
-        <h1
+        <Heading
           className="mt-2 font-serif text-4xl tracking-tight text-black md:text-5xl"
           data-testid="page-title"
         >
           {title}
-        </h1>
+        </Heading>
       )}
 
       {Array.isArray(overview) && overview.length > 0 && (

@@ -1,5 +1,4 @@
 import '../globals.css'
-import {GoogleAnalytics} from '@next/third-parties/google'
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import type {Metadata, Viewport} from 'next'
 import {IBM_Plex_Mono, Inter, PT_Serif} from 'next/font/google'
@@ -10,12 +9,15 @@ import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
 import {Toaster} from 'sonner'
 
+import {AnalyticsConsent} from '@/components/AnalyticsConsent'
 import {DraftModeProvider} from '@/components/DraftModeContext'
 import {Navbar} from '@/components/Navbar'
+import {PersonJsonLd} from '@/components/PersonJsonLd'
 import {SiteFooter} from '@/components/SiteFooter'
 import {SiteResumeChat} from '@/components/SiteResumeChat'
 import {getDictionary} from '@/i18n/dictionaries'
 import {getLocaleAlternates, hasLocale, locales, type Locale} from '@/i18n/routing'
+import {pageTitleTemplate, SITE_DESCRIPTION, SITE_URL} from '@/lib/site'
 import type {SettingsQueryResult} from '@/sanity.types'
 import {
   getDynamicFetchOptions,
@@ -77,15 +79,17 @@ export async function generateMetadata({
 
   const ogImage = urlForOpenGraphImage(settings?.ogImage)
   return {
-    title: home?.title
-      ? {
-          template: `%s | ${home.title}`,
-          default: home.title || (lang === 'nl' ? 'Persoonlijke website' : 'Personal website'),
-        }
-      : undefined,
-    description: home?.overview,
+    metadataBase: new URL(SITE_URL),
+    title: pageTitleTemplate(lang),
+    description: home?.overview || SITE_DESCRIPTION[lang],
     alternates: getLocaleAlternates(lang),
-    openGraph: {images: ogImage ? [ogImage] : []},
+    openGraph: {
+      title: pageTitleTemplate(lang).default,
+      description: home?.overview || SITE_DESCRIPTION[lang],
+      images: ogImage ? [ogImage] : [],
+      locale: lang === 'nl' ? 'nl_NL' : 'en_US',
+      type: 'website',
+    },
   }
 }
 
@@ -96,9 +100,11 @@ export default async function PersonalLayout({children, params}: LayoutProps<'/[
   if (!hasLocale(lang)) notFound()
 
   const {isEnabled: isDraftMode} = await draftMode()
+  const dictionary = await getDictionary(lang)
   return (
     <html lang={lang} className={`${mono.variable} ${sans.variable} ${serif.variable}`}>
       <body>
+        <PersonJsonLd />
         <DraftModeProvider isDraftMode={isDraftMode}>
           <div className="flex min-h-screen flex-col bg-white text-black">
             {isDraftMode ? (
@@ -137,9 +143,13 @@ export default async function PersonalLayout({children, params}: LayoutProps<'/[
           )}
           <SpeedInsights />
           <SiteResumeChat locale={lang} />
+          <AnalyticsConsent
+            gaId={googleAnalyticsId}
+            enabled={googleAnalyticsEnabled}
+            dictionary={dictionary.cookie}
+          />
         </DraftModeProvider>
       </body>
-      {googleAnalyticsEnabled ? <GoogleAnalytics gaId={googleAnalyticsId} /> : null}
     </html>
   )
 }

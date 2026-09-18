@@ -10,8 +10,16 @@ export type NavigationDictionary = {
   items: Partial<Record<'about' | 'work' | 'projects' | 'education' | 'skills' | 'contact', string>>
 }
 
+export type CookieDictionary = {
+  title: string
+  body: string
+  accept: string
+  reject: string
+}
+
 export type Dictionary = {
   navigation: NavigationDictionary
+  cookie: CookieDictionary
 }
 
 const dictionaries = {

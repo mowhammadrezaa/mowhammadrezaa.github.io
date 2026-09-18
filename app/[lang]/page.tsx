@@ -134,6 +134,7 @@ async function CachedHome({
             title={home.title}
             description={home.overview}
             locale={locale}
+            as="h1"
           />
         )}
       </section>
@@ -152,6 +153,7 @@ async function CachedHome({
                 overview={page.overview}
                 body={page.body}
                 locale={locale}
+                headingAs="h2"
               />
             </SectionShell>
           )
@@ -168,6 +170,7 @@ async function CachedHome({
                 locale={locale}
                 perspective={perspective}
                 stega={stega}
+                headingAs="h2"
               />
             </SectionShell>
           )
@@ -182,6 +185,7 @@ async function CachedHome({
                 title={page.title}
                 overview={page.overview}
                 locale={locale}
+                headingAs="h2"
               />
             </SectionShell>
           )
@@ -196,6 +200,7 @@ async function CachedHome({
                 title={page.title}
                 overview={page.overview}
                 locale={locale}
+                headingAs="h2"
               />
             </SectionShell>
           )
@@ -210,6 +215,7 @@ async function CachedHome({
               title={page.title || (locale === 'nl' ? 'Zonder titel' : 'Untitled')}
               description={page.overview}
               locale={locale}
+              as="h2"
             />
             {Array.isArray(page.body) && (
               <CustomPortableText

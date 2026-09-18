@@ -60,6 +60,8 @@ export async function generateMetadata(
     ] | order(select(language == $language => 0, 1) asc)[0] {
       coverImage,
       title,
+      client,
+      tags,
       "overview": pt::text(overview),
     }
   `)
@@ -70,11 +72,36 @@ export async function generateMetadata(
   })
 
   const ogImage = urlForOpenGraphImage(data?.coverImage)
+  const details = [
+    data?.overview,
+    data?.client
+      ? lang === 'nl'
+        ? `Opdrachtgever: ${data.client}.`
+        : `Client: ${data.client}.`
+      : null,
+    data?.tags?.length
+      ? lang === 'nl'
+        ? `Stack: ${data.tags.join(', ')}.`
+        : `Stack: ${data.tags.join(', ')}.`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return {
     title: data?.title,
-    description: data?.overview || (await parent).description,
+    description: details || (await parent).description,
     alternates: getLocaleAlternates(lang, `/projects/${slug}`),
-    openGraph: ogImage ? {images: [ogImage, ...((await parent).openGraph?.images || [])]} : {},
+    openGraph: ogImage
+      ? {
+          title: data?.title || undefined,
+          description: details || undefined,
+          images: [ogImage, ...((await parent).openGraph?.images || [])],
+        }
+      : {
+          title: data?.title || undefined,
+          description: details || undefined,
+        },
   }
 }
 
@@ -218,7 +245,7 @@ async function CachedProjectSlugPage({
           {/* Tags */}
           <div className="p-3 lg:p-4">
             <div className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
-              {isDutch ? 'Labels' : 'Tags'}
+              {isDutch ? 'Tech stack' : 'Tech stack'}
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {tags?.map((tag, key) => (

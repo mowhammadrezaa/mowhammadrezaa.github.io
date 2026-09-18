@@ -593,7 +593,7 @@ export type HomePageQueryResult = {
 
 // Source: app/[lang]/projects/[slug]/page.tsx
 // Variable: projectSlugPageMetadataQuery
-// Query: *[      _type == "project" &&      slug.current == $slug &&      language in [$language, "nl"]    ] | order(select(language == $language => 0, 1) asc)[0] {      coverImage,      title,      "overview": pt::text(overview),    }
+// Query: *[      _type == "project" &&      slug.current == $slug &&      language in [$language, "nl"]    ] | order(select(language == $language => 0, 1) asc)[0] {      coverImage,      title,      client,      tags,      "overview": pt::text(overview),    }
 export type ProjectSlugPageMetadataQueryResult = {
   coverImage: {
     asset?: SanityImageAssetReference;
@@ -603,6 +603,8 @@ export type ProjectSlugPageMetadataQueryResult = {
     _type: "image";
   } | null;
   title: string | null;
+  client: string | null;
+  tags: Array<string> | null;
   overview: string;
 } | null;
 
@@ -705,6 +707,22 @@ export type ProjectsPageQueryResult = {
   }> | null;
   title: string | null;
 } | null;
+
+// Source: app/sitemap.ts
+// Variable: sitemapEntriesQuery
+// Query: {  "pages": *[_type == "page" && defined(slug.current)]{    "slug": slug.current,    language,    _updatedAt  },  "projects": *[_type == "project" && defined(slug.current)]{    "slug": slug.current,    language,    _updatedAt  }}
+export type SitemapEntriesQueryResult = {
+  pages: Array<{
+    slug: string | null;
+    language: "en" | "nl" | null;
+    _updatedAt: string;
+  }>;
+  projects: Array<{
+    slug: string | null;
+    language: "en" | "nl" | null;
+    _updatedAt: string;
+  }>;
+};
 
 // Source: sanity/lib/queries.ts
 // Variable: settingsQuery
@@ -815,10 +833,11 @@ declare global {
     '\n    *[\n      _type == "page" &&\n      slug.current == $slug &&\n      language in [$language, "nl"]\n    ] | order(select(language == $language => 0, 1) asc)[0] {\n      _id,\n      _type,\n      body,\n      overview,\n      title,\n      "slug": slug.current,\n    }\n  ': SlugPageQueryResult;
     '{\n    "settings": *[_type == "settings" && language in [$language, "nl"]]\n      | order(select(language == $language => 0, 1) asc)[0]{ogImage},\n    "home": *[_type == "home" && language in [$language, "nl"]]\n      | order(select(language == $language => 0, 1) asc)[0]{\n      title,\n      "overview": pt::text(overview),\n    }\n  }': LayoutMetadataQueryResult;
     '\n  {\n    "home": *[_type == "home" && language in [$language, "nl"]]\n      | order(select(language == $language => 0, 1) asc)[0]{\n      _id,\n      _type,\n      overview,\n      title,\n    },\n    "pages": *[\n      _type == "page" &&\n      language in [$language, "nl"] &&\n      slug.current in ["about", "projects", "education", "work", "skills", "contact"]\n    ] | order(\n      select(\n        slug.current == "about" => 0,\n        slug.current == "work" => 1,\n        slug.current == "projects" => 2,\n        slug.current == "education" => 3,\n        slug.current == "skills" => 4,\n        slug.current == "contact" => 5,\n        99\n      ) asc,\n      select(language == $language => 0, 1) asc\n    ) {\n      _id,\n      _type,\n      body,\n      overview,\n      title,\n      "slug": slug.current,\n    }\n  }\n': HomePageQueryResult;
-    '\n    *[\n      _type == "project" &&\n      slug.current == $slug &&\n      language in [$language, "nl"]\n    ] | order(select(language == $language => 0, 1) asc)[0] {\n      coverImage,\n      title,\n      "overview": pt::text(overview),\n    }\n  ': ProjectSlugPageMetadataQueryResult;
+    '\n    *[\n      _type == "project" &&\n      slug.current == $slug &&\n      language in [$language, "nl"]\n    ] | order(select(language == $language => 0, 1) asc)[0] {\n      coverImage,\n      title,\n      client,\n      tags,\n      "overview": pt::text(overview),\n    }\n  ': ProjectSlugPageMetadataQueryResult;
     '\n    *[\n      _type == "project" &&\n      slug.current == $slug &&\n      language in [$language, "nl"]\n    ] | order(select(language == $language => 0, 1) asc)[0] {\n      _id,\n      _type,\n      client,\n      coverImage,\n      coverVideoUrl,\n      description,\n      duration,\n      overview,\n      site,\n      "slug": slug.current,\n      tags,\n      title,\n    }\n  ': ProjectSlugPageQueryResult;
     '\n    *[_type == "page" && slug.current == "projects" && language in [$language, "nl"]]\n      | order(select(language == $language => 0, 1) asc)[0] {\n      title,\n      "overview": pt::text(overview),\n    }\n  ': ProjectsPageMetadataQueryResult;
     '\n    *[_type == "page" && slug.current == "projects" && language in [$language, "nl"]]\n      | order(select(language == $language => 0, 1) asc)[0] {\n      _id,\n      _type,\n      overview,\n      title,\n    }\n  ': ProjectsPageQueryResult;
+    '{\n  "pages": *[_type == "page" && defined(slug.current)]{\n    "slug": slug.current,\n    language,\n    _updatedAt\n  },\n  "projects": *[_type == "project" && defined(slug.current)]{\n    "slug": slug.current,\n    language,\n    _updatedAt\n  }\n}': SitemapEntriesQueryResult;
     '\n  *[_type == "settings" && language in [$language, "nl"]]\n    | order(select(language == $language => 0, 1) asc)[0]{\n    _id,\n    _type,\n    footer,\n    language,\n    menuItems[]{\n      _key,\n      ...@->{\n        _type,\n        language,\n        "slug": slug.current,\n        title\n      }\n    },\n    ogImage,\n  }\n': SettingsQueryResult;
     '\n  *[_type == "home" && language in [$language, "nl"]]\n    | order(select(language == $language => 0, 1) asc)[0]{\n    _id,\n    language,\n    showcaseProjects[]{\n      _key,\n      ...@->{\n        _id,\n        _type,\n        coverImage,\n        coverVideoUrl,\n        overview,\n        "slug": slug.current,\n        tags,\n        title,\n      }\n    }\n  }\n': ShowcaseProjectsQueryResult;
     '\n  *[\n    _type == $type &&\n    language == $language &&\n    defined(slug.current)\n  ] {\n    "slug": coalesce(slug.current, "")\n  }\n': SlugsByTypeQueryResult;

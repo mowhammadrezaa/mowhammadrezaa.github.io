@@ -38,9 +38,18 @@ interface AboutSectionProps {
   overview?: PortableValue | null
   body?: BodyBlock[] | null
   locale?: 'nl' | 'en'
+  headingAs?: 'h1' | 'h2'
 }
 
-export function AboutSection({id, type, title, overview, body, locale = 'en'}: AboutSectionProps) {
+export function AboutSection({
+  id,
+  type,
+  title,
+  overview,
+  body,
+  locale = 'en',
+  headingAs: Heading = 'h1',
+}: AboutSectionProps) {
   const isDutch = locale === 'nl'
   const blocks = Array.isArray(body) ? body : []
   const image = blocks.find((b) => b._type === 'image')
@@ -99,12 +108,12 @@ export function AboutSection({id, type, title, overview, body, locale = 'en'}: A
             </p>
           )}
           {title && (
-            <h1
+            <Heading
               className="mt-2 font-serif text-4xl tracking-tight text-black md:text-5xl"
               data-testid="page-title"
             >
               {title}
-            </h1>
+            </Heading>
           )}
 
           {Array.isArray(overview) && overview.length > 0 && (

@@ -15,6 +15,12 @@ const dictionary = {
       contact: 'Contact',
     },
   },
+  cookie: {
+    title: 'Cookies',
+    body: 'Deze site gebruikt Google Analytics om bezoeken te begrijpen. Accepteer alleen als je akkoord gaat met analytics-cookies.',
+    accept: 'Accepteren',
+    reject: 'Weigeren',
+  },
 } satisfies Dictionary
 
 export default dictionary

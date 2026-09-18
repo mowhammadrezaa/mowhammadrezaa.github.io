@@ -89,9 +89,17 @@ interface SkillsSectionProps {
   title?: string | null
   overview?: PortableValue | null
   locale?: 'nl' | 'en'
+  headingAs?: 'h1' | 'h2'
 }
 
-export function SkillsSection({id, type, title, overview, locale = 'en'}: SkillsSectionProps) {
+export function SkillsSection({
+  id,
+  type,
+  title,
+  overview,
+  locale = 'en',
+  headingAs: Heading = 'h1',
+}: SkillsSectionProps) {
   const isDutch = locale === 'nl'
   const groupLabels: Record<string, string> = isDutch
     ? {
@@ -108,12 +116,12 @@ export function SkillsSection({id, type, title, overview, locale = 'en'}: Skills
         {isDutch ? 'Technische toolkit' : 'Toolkit'}
       </p>
       {title && (
-        <h1
+        <Heading
           className="mt-2 font-serif text-4xl tracking-tight text-black md:text-5xl"
           data-testid="page-title"
         >
           {title}
-        </h1>
+        </Heading>
       )}
 
       {Array.isArray(overview) && overview.length > 0 && (

@@ -15,6 +15,12 @@ const dictionary = {
       contact: 'Contact',
     },
   },
+  cookie: {
+    title: 'Cookies',
+    body: 'This site uses Google Analytics to understand visits. Accept only if you agree to analytics cookies.',
+    accept: 'Accept',
+    reject: 'Reject',
+  },
 } satisfies Dictionary
 
 export default dictionary

@@ -72,6 +72,10 @@ export async function generateMetadata(
     title: data?.title,
     description: data?.overview || (await parent).description,
     alternates: getLocaleAlternates(lang, `/${slug}`),
+    openGraph: {
+      title: data?.title || undefined,
+      description: data?.overview || undefined,
+    },
   }
 }
 

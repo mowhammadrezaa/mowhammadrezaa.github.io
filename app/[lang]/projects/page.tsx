@@ -45,7 +45,11 @@ export async function generateMetadata({
   })
   return {
     title: data?.title || (lang === 'nl' ? 'Projecten' : 'Projects'),
-    description: data?.overview || undefined,
+    description:
+      data?.overview ||
+      (lang === 'nl'
+        ? 'Geselecteerd werk op het gebied van Edge AI, computer vision en productontwikkeling — van realtime pijplijnen tot full-stack oplevering.'
+        : 'Selected Edge AI, computer vision, and product work — from real-time pipelines to full-stack delivery.'),
     alternates: getLocaleAlternates(lang, '/projects'),
   }
 }
