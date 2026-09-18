@@ -88,13 +88,24 @@ interface SkillsSectionProps {
   type: string | null
   title?: string | null
   overview?: PortableValue | null
+  locale?: 'nl' | 'en'
 }
 
-export function SkillsSection({id, type, title, overview}: SkillsSectionProps) {
+export function SkillsSection({id, type, title, overview, locale = 'en'}: SkillsSectionProps) {
+  const isDutch = locale === 'nl'
+  const groupLabels: Record<string, string> = isDutch
+    ? {
+        'Languages': 'Programmeertalen',
+        'AI & data': 'AI en data',
+        'Edge & serving': 'Edge-AI en model-serving',
+        'Platforms & DevOps': 'Platformen en DevOps',
+        'Product & web': 'Productontwikkeling en web',
+      }
+    : {}
   return (
     <article className="mx-auto max-w-4xl">
       <p className="font-sans text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
-        Toolkit
+        {isDutch ? 'Technische toolkit' : 'Toolkit'}
       </p>
       {title && (
         <h1
@@ -113,6 +124,7 @@ export function SkillsSection({id, type, title, overview}: SkillsSectionProps) {
             path={['overview']}
             paragraphClasses="text-inherit"
             value={overview}
+            locale={locale}
           />
         </div>
       )}
@@ -124,7 +136,7 @@ export function SkillsSection({id, type, title, overview}: SkillsSectionProps) {
             className="grid gap-1.5 py-3.5 md:grid-cols-[9.5rem_minmax(0,1fr)] md:items-baseline md:gap-6 md:py-4"
           >
             <h2 className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.16em] text-gray-400">
-              {group.label}
+              {groupLabels[group.label] || group.label}
             </h2>
             <p className="font-mono text-[0.8125rem] leading-relaxed text-gray-700 md:text-sm">
               {group.items.join(' · ')}
@@ -135,7 +147,7 @@ export function SkillsSection({id, type, title, overview}: SkillsSectionProps) {
 
       <section className="mt-8">
         <h2 className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.16em] text-gray-400">
-          Certifications
+          {isDutch ? 'Certificeringen' : 'Certifications'}
         </h2>
         <ul className="mt-3 space-y-1.5">
           {CERTIFICATIONS.map((cert) => (
@@ -152,18 +164,20 @@ export function SkillsSection({id, type, title, overview}: SkillsSectionProps) {
       <div className="mt-8 grid gap-5 border-t border-black/[0.08] pt-6 md:grid-cols-2 md:gap-8">
         <aside>
           <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.16em] text-gray-400">
-            Spoken languages
+            {isDutch ? 'Gesproken talen' : 'Spoken languages'}
           </p>
           <p className="mt-2 font-serif text-sm text-gray-700 md:text-[0.95rem]">
-            English (C1), Italian (A1)
+            {isDutch ? 'Engels (C1), Italiaans (A1)' : 'English (C1), Italian (A1)'}
           </p>
         </aside>
         <aside>
           <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.16em] text-gray-400">
-            Focus areas
+            {isDutch ? 'Aandachtsgebieden' : 'Focus areas'}
           </p>
           <p className="mt-2 font-serif text-sm text-gray-700 md:text-[0.95rem]">
-            Edge AI, Computer Vision, Real-time Inference, AI Platform / Serving
+            {isDutch
+              ? 'Edge-AI, computer vision, realtime-inferentie, AI-platformen en model-serving'
+              : 'Edge AI, Computer Vision, Real-time Inference, AI Platform / Serving'}
           </p>
         </aside>
       </div>

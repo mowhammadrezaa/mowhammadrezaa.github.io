@@ -24,7 +24,7 @@ test.describe('instant nav to a project page', () => {
       : page.locator(`a[href="${destination.href}"]`).first()
 
     if (!(await navTrigger.isVisible())) {
-      await page.goto('/projects')
+      await page.goto('/nl/projects')
       await expect(trigger).toBeVisible({timeout: 20000})
     }
 

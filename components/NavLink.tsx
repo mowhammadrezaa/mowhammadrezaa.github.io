@@ -28,6 +28,7 @@ export function NavLink({
   const pathname = usePathname()
   const hrefString = typeof href === 'string' ? href : href.pathname || '/'
   const targetHash = getHash(hrefString)
+  const targetPath = hrefString.split('#')[0] || '/'
   const [activeHash, setActiveHash] = useState('')
 
   useEffect(() => {
@@ -38,20 +39,20 @@ export function NavLink({
   }, [])
 
   useEffect(() => {
-    if (pathname !== '/') return
+    if (pathname !== targetPath) return undefined
 
     const sectionIds = ['about', 'work', 'projects', 'education', 'skills', 'contact']
     const elements = sectionIds
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => Boolean(el))
 
-    if (elements.length === 0) return
+    if (elements.length === 0) return undefined
 
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+          .toSorted((a, b) => b.intersectionRatio - a.intersectionRatio)
         const top = visible[0]?.target
         if (top?.id) {
           setActiveHash(`#${top.id}`)
@@ -65,13 +66,13 @@ export function NavLink({
 
     for (const el of elements) observer.observe(el)
     return () => observer.disconnect()
-  }, [pathname])
+  }, [pathname, targetPath])
 
   const isActive = isHome
-    ? pathname === '/' && !activeHash
+    ? pathname === targetPath && !activeHash
     : targetHash
-      ? pathname === '/' && activeHash === targetHash
-      : pathname === hrefString || pathname.startsWith(`${hrefString}/`)
+      ? pathname === targetPath && activeHash === targetHash
+      : pathname === targetPath || pathname.startsWith(`${targetPath}/`)
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event)
@@ -79,7 +80,7 @@ export function NavLink({
     if (!targetHash || !targetHash.startsWith('#')) return
 
     const id = targetHash.slice(1)
-    const onHome = pathname === '/'
+    const onHome = pathname === targetPath
     if (!onHome) return
 
     const target = document.getElementById(id)
@@ -99,10 +100,10 @@ export function NavLink({
         onClick={(event) => {
           onClick?.(event)
           if (event.defaultPrevented) return
-          if (pathname === '/') {
+          if (pathname === targetPath) {
             event.preventDefault()
             window.scrollTo({top: 0, behavior: 'smooth'})
-            window.history.pushState(null, '', '/')
+            window.history.pushState(null, '', targetPath)
             setActiveHash('')
           }
         }}

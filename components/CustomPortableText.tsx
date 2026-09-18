@@ -16,12 +16,14 @@ export function CustomPortableText({
   path,
   paragraphClasses,
   value,
+  locale = 'en',
 }: {
   id: string | null
   type: string | null
   path: PathSegment[]
   paragraphClasses?: string
   value: InferValue<SanityQueries[keyof SanityQueries]>
+  locale?: 'nl' | 'en'
 }) {
   const components = {
     block: {
@@ -48,7 +50,12 @@ export function CustomPortableText({
       image: ({value: image}) => {
         return (
           <div className="my-6 space-y-2">
-            <ImageBox image={image} alt={image.alt} classesWrapper="relative aspect-[16/9]" />
+            <ImageBox
+              image={image}
+              alt={image.alt}
+              classesWrapper="relative aspect-[16/9]"
+              locale={locale}
+            />
             {image?.caption && (
               <div className="font-sans text-sm text-gray-600">{image.caption}</div>
             )}
@@ -64,6 +71,7 @@ export function CustomPortableText({
             type={type}
             path={[...path, {_key}, 'items']}
             timelines={items as React.ComponentProps<typeof TimelineSection>['timelines']}
+            locale={locale}
           />
         )
       },

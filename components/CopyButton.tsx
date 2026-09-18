@@ -13,6 +13,8 @@ async function copyToClipboard(value: string) {
     input.style.left = '-9999px'
     document.body.appendChild(input)
     input.select()
+    // Legacy fallback for browsers where the asynchronous Clipboard API is unavailable.
+    // oxlint-disable-next-line typescript/no-deprecated
     document.execCommand('copy')
     document.body.removeChild(input)
   }
@@ -20,12 +22,16 @@ async function copyToClipboard(value: string) {
 
 export function CopyButton({
   value,
-  label = 'Copy',
+  label,
+  locale = 'en',
 }: {
   value: string
   label?: string
+  locale?: 'nl' | 'en'
 }) {
   const [copied, setCopied] = useState(false)
+  const isDutch = locale === 'nl'
+  const accessibleLabel = label || 'item'
 
   async function handleCopy() {
     await copyToClipboard(value)
@@ -38,17 +44,25 @@ export function CopyButton({
       type="button"
       onClick={handleCopy}
       className="inline-flex shrink-0 items-center gap-1.5 border border-black/15 bg-white px-2.5 py-1.5 font-sans text-xs font-medium tracking-wide text-gray-700 transition hover:border-black/40 hover:text-black"
-      aria-label={copied ? `${label} copied` : `Copy ${label.toLowerCase()} to clipboard`}
+      aria-label={
+        copied
+          ? isDutch
+            ? `${accessibleLabel} gekopieerd`
+            : `${accessibleLabel} copied`
+          : isDutch
+            ? `${accessibleLabel.toLowerCase()} naar het klembord kopiëren`
+            : `Copy ${accessibleLabel.toLowerCase()} to clipboard`
+      }
     >
       {copied ? (
         <>
           <CheckIcon />
-          Copied
+          {isDutch ? 'Gekopieerd' : 'Copied'}
         </>
       ) : (
         <>
           <CopyIcon />
-          Copy
+          {isDutch ? 'Kopiëren' : 'Copy'}
         </>
       )}
     </button>

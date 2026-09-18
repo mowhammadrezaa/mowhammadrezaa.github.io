@@ -6,6 +6,7 @@ import {notFound} from 'next/navigation'
 import {CustomPortableText} from '@/components/CustomPortableText'
 import {Header} from '@/components/Header'
 import {ProjectCoverMedia} from '@/components/ProjectCoverMedia'
+import {getLocaleAlternates, hasLocale, type Locale} from '@/i18n/routing'
 import {studioUrl} from '@/sanity/lib/api'
 import {
   getDynamicFetchOptions,
@@ -17,13 +18,25 @@ import {
 import {slugsByTypeQuery, type SlugsByTypeQueryParams} from '@/sanity/lib/queries'
 import {urlForOpenGraphImage} from '@/sanity/lib/utils'
 
-export async function generateStaticParams() {
+export async function generateStaticParams({
+  params,
+}: {
+  params: {lang: string}
+}): Promise<Array<{slug: string}>> {
+  if (!hasLocale(params.lang)) return [{slug: '__placeholder__'}]
+
   const {data} = await sanityFetchStaticParams({
     query: slugsByTypeQuery,
-    params: {type: 'project'} satisfies SlugsByTypeQueryParams,
+    params: {
+      language: params.lang,
+      type: 'project',
+    } satisfies SlugsByTypeQueryParams,
   })
   if (data.length > 0) {
-    return data
+    return Array.from(
+      new Set(data.flatMap(({slug}) => (slug ? [slug] : []))),
+      (slug) => ({slug}),
+    )
   }
   // Cache Components requires `generateStaticParams` to return at least one param — an empty
   // array fails the build (https://nextjs.org/docs/messages/empty-generate-static-params).
@@ -33,12 +46,18 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  {params}: PageProps<'/projects/[slug]'>,
+  {params}: PageProps<'/[lang]/projects/[slug]'>,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const [{slug}, {perspective}] = await Promise.all([params, getDynamicFetchOptions()])
+  const [{lang, slug}, {perspective}] = await Promise.all([params, getDynamicFetchOptions()])
+  if (!hasLocale(lang)) notFound()
+
   const projectSlugPageMetadataQuery = defineQuery(`
-    *[_type == "project" && slug.current == $slug][0] {
+    *[
+      _type == "project" &&
+      slug.current == $slug &&
+      language in [$language, "nl"]
+    ] | order(select(language == $language => 0, 1) asc)[0] {
       coverImage,
       title,
       "overview": pt::text(overview),
@@ -46,7 +65,7 @@ export async function generateMetadata(
   `)
   const {data} = await sanityFetchMetadata({
     query: projectSlugPageMetadataQuery,
-    params: {slug},
+    params: {language: lang, slug},
     perspective,
   })
 
@@ -54,23 +73,43 @@ export async function generateMetadata(
   return {
     title: data?.title,
     description: data?.overview || (await parent).description,
+    alternates: getLocaleAlternates(lang, `/projects/${slug}`),
     openGraph: ogImage ? {images: [ogImage, ...((await parent).openGraph?.images || [])]} : {},
   }
 }
 
-export default async function ProjectSlugPage({params}: PageProps<'/projects/[slug]'>) {
-  const [{slug}, {perspective, stega}] = await Promise.all([params, getDynamicFetchOptions()])
-  return <CachedProjectSlugPage slug={slug} perspective={perspective} stega={stega} />
+export default async function ProjectSlugPage({
+  params,
+}: PageProps<'/[lang]/projects/[slug]'>) {
+  const [{lang, slug}, {perspective, stega}] = await Promise.all([
+    params,
+    getDynamicFetchOptions(),
+  ])
+  if (!hasLocale(lang)) notFound()
+
+  return (
+    <CachedProjectSlugPage
+      locale={lang}
+      slug={slug}
+      perspective={perspective}
+      stega={stega}
+    />
+  )
 }
 
 async function CachedProjectSlugPage({
   slug,
+  locale,
   perspective,
   stega,
-}: Awaited<PageProps<'/projects/[slug]'>['params']> & DynamicFetchOptions) {
+}: {locale: Locale; slug: string} & DynamicFetchOptions) {
   'use cache'
   const projectSlugPageQuery = defineQuery(`
-    *[_type == "project" && slug.current == $slug][0] {
+    *[
+      _type == "project" &&
+      slug.current == $slug &&
+      language in [$language, "nl"]
+    ] | order(select(language == $language => 0, 1) asc)[0] {
       _id,
       _type,
       client,
@@ -87,7 +126,7 @@ async function CachedProjectSlugPage({
   `)
   const {data} = await sanityFetch({
     query: projectSlugPageQuery,
-    params: {slug},
+    params: {language: locale, slug},
     perspective,
     stega,
   })
@@ -107,7 +146,12 @@ async function CachedProjectSlugPage({
     data ?? {}
 
   const startYear = duration?.start ? new Date(duration.start).getFullYear() : undefined
-  const endYear = duration?.end ? new Date(duration?.end).getFullYear() : 'Now'
+  const isDutch = locale === 'nl'
+  const endYear = duration?.end
+    ? new Date(duration?.end).getFullYear()
+    : isDutch
+      ? 'Heden'
+      : 'Now'
 
   return (
     <div className="space-y-6" data-testid="project-content">
@@ -116,8 +160,9 @@ async function CachedProjectSlugPage({
         id={data?._id || null}
         type={data?._type || null}
         path={['overview']}
-        title={title || 'Untitled'}
+        title={title || (isDutch ? 'Zonder titel' : 'Untitled')}
         description={overview}
+        locale={locale}
       />
 
       <div className="rounded-md border">
@@ -126,14 +171,22 @@ async function CachedProjectSlugPage({
           data-sanity={dataAttribute?.('coverImage')}
           image={coverImage}
           videoUrl={coverVideoUrl}
-          alt={title ? `Cover media from ${title}` : 'Project cover'}
+          alt={
+            title
+              ? isDutch
+                ? `Projectmedia voor ${title}`
+                : `Project media for ${title}`
+              : isDutch
+                ? 'Projectmedia'
+                : 'Project media'
+          }
         />
 
         <div className="divide-inherit grid grid-cols-1 divide-y lg:grid-cols-4 lg:divide-x lg:divide-y-0">
           {/* Duration */}
           {!!(startYear && endYear) && (
             <div className="p-3 lg:p-4">
-              <div className="text-xs md:text-sm">Duration</div>
+              <div className="text-xs md:text-sm">{isDutch ? 'Duur' : 'Duration'}</div>
               <div className="text-md md:text-lg">
                 <span data-sanity={dataAttribute?.('duration.start')}>{startYear}</span>
                 {' - '}
@@ -145,7 +198,7 @@ async function CachedProjectSlugPage({
           {/* Client */}
           {client && (
             <div className="p-3 lg:p-4">
-              <div className="text-xs md:text-sm">Client</div>
+              <div className="text-xs md:text-sm">{isDutch ? 'Opdrachtgever' : 'Client'}</div>
               <div className="text-md md:text-lg">{client}</div>
             </div>
           )}
@@ -153,7 +206,7 @@ async function CachedProjectSlugPage({
           {/* Site */}
           {site && (
             <div className="p-3 lg:p-4">
-              <div className="text-xs md:text-sm">Site</div>
+              <div className="text-xs md:text-sm">Website</div>
               {site && (
                 <Link target="_blank" className="text-md break-words md:text-lg" href={site}>
                   {site}
@@ -165,7 +218,7 @@ async function CachedProjectSlugPage({
           {/* Tags */}
           <div className="p-3 lg:p-4">
             <div className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
-              Tags
+              {isDutch ? 'Labels' : 'Tags'}
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {tags?.map((tag, key) => (
@@ -189,6 +242,7 @@ async function CachedProjectSlugPage({
           path={['description']}
           paragraphClasses="font-serif max-w-3xl text-xl text-gray-600"
           value={description}
+          locale={locale}
         />
       )}
     </div>

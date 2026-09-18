@@ -1,6 +1,8 @@
 import {CogIcon} from '@sanity/icons/Cog'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
+import {languageField, languageReferenceFilter} from '../locale'
+
 export default defineType({
   name: 'settings',
   title: 'Settings',
@@ -9,6 +11,7 @@ export default defineType({
   // Uncomment below to have edits publish automatically as you type
   // liveEdit: true,
   fields: [
+    languageField,
     defineField({
       name: 'menuItems',
       title: 'Menu Item list',
@@ -29,6 +32,9 @@ export default defineType({
               type: 'project',
             },
           ],
+          options: {
+            filter: languageReferenceFilter,
+          },
         },
       ],
     }),
@@ -70,10 +76,13 @@ export default defineType({
     }),
   ],
   preview: {
-    prepare() {
+    select: {
+      language: 'language',
+    },
+    prepare({language}) {
       return {
         title: 'Settings',
-        subtitle: 'Menu Items, Footer Info, and Open Graph Image',
+        subtitle: `Menu, footer, and sharing · ${language?.toUpperCase() || 'No language'}`,
       }
     },
   },

@@ -30,15 +30,14 @@ test.describe('draft-mode project navigation', () => {
     // Starting from "/projects" (not a project detail) is what exposes the sticky-navigation
     // bug: the showcase links prefetch a sibling project, and every subsequent
     // /projects/[slug] navigation would otherwise reuse that one prefetched RSC.
-    enableUrl.searchParams.set('sanity-preview-pathname', '/projects')
+    enableUrl.searchParams.set('sanity-preview-pathname', '/nl/projects')
     enableUrl.searchParams.set('sanity-preview-perspective', 'drafts')
 
     await page.goto(enableUrl.toString(), {waitUntil: 'domcontentloaded'})
-    await expect(page.getByText('Draft Mode Enabled')).toBeVisible({timeout: 20000})
+    await expect(page.getByText('Conceptmodus ingeschakeld')).toBeVisible({timeout: 20000})
 
     // Let the showcase links prefetch before navigating; the bug is that a prefetched
     // sibling's RSC gets reused for the whole /projects/[slug] segment.
-    const projectsNav = page.getByTestId('nav-link-projects')
     for (const project of projects) {
       const card = page.locator(`a[href="${project.href}"]`).first()
       await expect(card).toBeVisible({timeout: 20000})
@@ -46,12 +45,12 @@ test.describe('draft-mode project navigation', () => {
     await page.waitForTimeout(1500)
 
     for (const project of projects) {
-      if (new URL(page.url()).pathname !== '/projects') {
-        await projectsNav.click()
-        await page.waitForURL((url) => new URL(url).pathname === '/projects', {timeout: 10000})
+      if (new URL(page.url()).pathname !== '/nl/projects') {
+        await page.goto('/nl/projects')
+        await page.waitForURL((url) => new URL(url).pathname === '/nl/projects', {timeout: 10000})
         await page.waitForTimeout(500)
       }
-      // Click the showcase card directly from "/projects" (a client-side navigation).
+      // Click the showcase card directly from the Dutch projects index (a client-side navigation).
       await page.locator(`a[href="${project.href}"]`).first().click()
       await expect(page).toHaveURL(projectUrlPattern(project.href))
       await expect(visibleTitle(page, project.title)).toBeVisible({timeout: 10000})

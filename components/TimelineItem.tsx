@@ -3,14 +3,20 @@ import type {Milestone} from '@/sanity.types'
 
 export function TimelineItem({
   milestone,
+  locale = 'en',
   ...props
 }: {
-  milestone: Milestone
+  'milestone': Milestone
+  'locale'?: 'nl' | 'en'
   'data-sanity'?: string
 }) {
   const {description, duration, image, imageLayout, points, tags, title} = milestone
   const startYear = duration?.start ? new Date(duration.start).getFullYear() : undefined
-  const endYear = duration?.end ? new Date(duration.end).getFullYear() : 'Now'
+  const endYear = duration?.end
+    ? new Date(duration.end).getFullYear()
+    : locale === 'nl'
+      ? 'Heden'
+      : 'Now'
   const detailPoints = points?.filter(Boolean) ?? []
   const isCover = imageLayout === 'cover'
 
@@ -23,7 +29,10 @@ export function TimelineItem({
         {isCover ? (
           <ImageBox
             image={image}
-            alt={title || 'Timeline cover image'}
+            alt={
+              title ||
+              (locale === 'nl' ? 'Omslagafbeelding bij tijdlijnitem' : 'Timeline item cover image')
+            }
             classesWrapper="relative aspect-[16/9]"
             size="(max-width: 1280px) 100vw, 40vw"
           />
@@ -32,7 +41,9 @@ export function TimelineItem({
             <div className="absolute inset-0 p-10 md:p-14 lg:p-16">
               <ImageBox
                 image={image}
-                alt={title || 'Timeline item icon'}
+                alt={
+                  title || (locale === 'nl' ? 'Pictogram bij tijdlijnitem' : 'Timeline item icon')
+                }
                 width={900}
                 height={900}
                 size="(max-width: 1280px) 100vw, 40vw"
@@ -55,13 +66,18 @@ export function TimelineItem({
               </div>
             )}
             {description && (
-              <div className="mb-4 font-serif text-base text-gray-700 md:text-lg">{description}</div>
+              <div className="mb-4 font-serif text-base text-gray-700 md:text-lg">
+                {description}
+              </div>
             )}
             {detailPoints.length > 0 && (
               <ul className="space-y-3 font-serif text-sm leading-relaxed text-gray-500 md:text-base">
                 {detailPoints.map((point, key) => (
                   <li key={key} className="flex gap-3">
-                    <span aria-hidden className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-gray-400" />
+                    <span
+                      aria-hidden
+                      className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-gray-400"
+                    />
                     <span>{point}</span>
                   </li>
                 ))}

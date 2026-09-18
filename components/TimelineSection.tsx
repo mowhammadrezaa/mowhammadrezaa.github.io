@@ -18,11 +18,13 @@ export function TimelineSection({
   id,
   type,
   path,
+  locale = 'en',
 }: {
   timelines: TimelineBlock[] | undefined
   id: string | null
   type: string | null
   path: StudioPathLike
+  locale?: 'nl' | 'en'
 }) {
   const dataAttribute =
     id && type
@@ -53,11 +55,8 @@ export function TimelineSection({
                     <TimelineItem
                       key={experience._key}
                       milestone={stegaClean(experience)}
-                      data-sanity={dataAttribute?.([
-                        {_key},
-                        'milestones',
-                        {_key: experience._key},
-                      ])}
+                      locale={locale}
+                      data-sanity={dataAttribute?.([{_key}, 'milestones', {_key: experience._key}])}
                     />
                   ))}
                 </OptimisticSortOrder>

@@ -13,6 +13,8 @@ export type PuterResumeChatProps = {
    * Injected into the system prompt — keep it factual.
    */
   knowledgeBase: string
+  /** Language used by the chat interface and assistant */
+  locale?: 'nl' | 'en'
   /** Optional line under the title (omit to hide) */
   subtitle?: string
   /** Intro copy shown before the first message */
@@ -57,7 +59,7 @@ export type PuterGlobal = {
       options?: PuterAiChatOptions,
     ) => Promise<
       | AsyncIterable<PuterChatChunk>
-      | {message?: {content?: string | unknown}; text?: string}
+      | {message?: {content?: unknown}; text?: string}
       | string
     >
   }
@@ -69,4 +71,3 @@ declare global {
   }
 }
 
-export {}

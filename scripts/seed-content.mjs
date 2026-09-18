@@ -1,13 +1,14 @@
+import {randomBytes} from 'node:crypto'
+import {createReadStream, existsSync} from 'node:fs'
+import {basename, join} from 'node:path'
+import {dirname} from 'node:path'
+import {fileURLToPath} from 'node:url'
+
 /**
  * One-off seed: migrate CV + site content into Sanity (project wy8j5q89).
  * Usage: node --env-file=.env.local scripts/seed-content.mjs
  */
 import {createClient} from '@sanity/client'
-import {createReadStream, existsSync} from 'node:fs'
-import {basename, join} from 'node:path'
-import {fileURLToPath} from 'node:url'
-import {dirname} from 'node:path'
-import {randomBytes} from 'node:crypto'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
@@ -19,7 +20,9 @@ const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
 const token = process.env.SANITY_API_WRITE_TOKEN
 
 if (!projectId || !dataset || !token) {
-  console.error('Missing NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET, or SANITY_API_WRITE_TOKEN')
+  console.error(
+    'Missing NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET, or SANITY_API_WRITE_TOKEN',
+  )
   process.exit(1)
 }
 
@@ -48,10 +51,6 @@ function block(text, {marks = [], markDefs = []} = {}) {
       },
     ],
   }
-}
-
-function blocksFromParagraphs(paragraphs) {
-  return paragraphs.filter(Boolean).map((p) => block(p))
 }
 
 function bulletList(items) {
@@ -288,6 +287,117 @@ const projects = [
   },
 ]
 
+const projectTranslationsNl = {
+  'project-safety-detection': {
+    title: 'Realtime detectiepijplijn voor meerdere veiligheidsklassen',
+    overview:
+      'Productiepijplijn in C++/GStreamer op Hailo Edge AI-hardware voor realtime detectie van meerdere veiligheidsklassen met 30 FPS.',
+    client: 'AWENTIA',
+    tags: ['Computer Vision', 'Edge AI', 'Hailo', 'GStreamer'],
+    bullets: [
+      'Een productiepijplijn in C++/GStreamer gebouwd op Hailo Edge AI-hardware om mensen, dieren, industrieel gereedschap en machines in realtime te detecteren.',
+      'Een global-shuttercamera geïntegreerd om machinetrillingen te compenseren en bewegingsonscherpte te verminderen.',
+      'YOLO-inferentie en streamverwerking geoptimaliseerd voor stabiele end-to-endprestaties van 30 FPS.',
+    ],
+  },
+  'project-medicine-packet': {
+    title: 'Detectie- en identificatiepijplijn voor medicijnverpakkingen',
+    overview:
+      'Volledige C++/GStreamer-beeldverwerkingspijplijn op Hailo voor detectie en identificatie van medicijnverpakkingen in kwaliteitscontroleprocessen.',
+    client: 'AWENTIA',
+    tags: ['Computer Vision', 'Edge AI', 'Kwaliteitscontrole'],
+    bullets: [
+      'Een volledige C++/GStreamer-beeldverwerkingspijplijn ontwikkeld die op Hailo Edge AI-hardware draait voor de detectie en identificatie van medicijnverpakkingen.',
+      'Een robuuste identificatiefase geïmplementeerd ter ondersteuning van de daaropvolgende controle van de juistheid van verpakkingen.',
+      'Een productieklare realtime pijplijn opgeleverd voor geautomatiseerde kwaliteitscontroleprocessen.',
+    ],
+  },
+  'project-owlv2': {
+    title: 'Open-vocabulary-detectie met OWLv2 op Jetson Orin',
+    overview:
+      'Volledige OWLv2-inferentiepijplijn op Jetson Orin met Triton Inference Server voor promptgestuurde open-vocabulary-detectie.',
+    client: 'AWENTIA',
+    tags: ['Computer Vision', 'OWLv2', 'Jetson', 'Triton'],
+    bullets: [
+      'De volledige OWLv2-inferentiepijplijn op Jetson Orin geïmplementeerd met Triton Inference Server voor toepassing aan de edge.',
+      'Promptgestuurde open-vocabulary-detectie op basis van tekst- of afbeeldingsquery’s mogelijk gemaakt.',
+      'Modelserving en nabewerking geoptimaliseerd om onder productieachtige omstandigheden 4 FPS te behalen.',
+    ],
+  },
+  'project-grounded-sam': {
+    title: 'Grounded-SAM op OAK-Depth VPU voor palletbewerkingen',
+    overview:
+      'Grounded-SAM op de VPU van een OAK-Depth-camera voor doosdetectie, schatting van formaat en oriëntatie, en het lezen van QR-labels op pallets.',
+    client: 'Persoonlijk project',
+    tags: ['Computer Vision', 'Grounded-SAM', 'OAK-D'],
+    bullets: [
+      'Grounded-SAM op de VPU van de OAK-Depth-camera geïmplementeerd om dozen op pallets te detecteren voor palletiseren en depalletiseren.',
+      'Schatting van doosformaat en -oriëntatie toegevoegd, evenals het lezen van labels, waaronder het uitlezen van QR-codes.',
+      'Op het apparaat 2 FPS behaald terwijl de volledige detectie- en verwerkingspijplijn draaide.',
+    ],
+  },
+  'project-passateoria': {
+    title: 'PassaTeoria',
+    overview:
+      'Cross-platform EdTech-product voor het Italiaanse rijtheorie-examen — web, Android en iOS vanuit één Expo-codebase.',
+    client: 'PassaTeoria',
+    tags: ['EdTech', 'React Native', 'Expo', 'Full-stack'],
+    bullets: [
+      'PassaTeoria opgericht en uitgebracht voor rijbewijzen A1/A/B, met web, Android en iOS vanuit één Expo/React Native-codebase.',
+      'Een database-first contentplatform gebouwd: een cursus met 25 lessen, 7.139 quizvragen en een woordenboek met meer dan 4.500 termen, met meertalige ondersteuning.',
+      'Een freemium-SaaS ontworpen: Google OAuth, Stripe, Play Billing, AVG-conforme verwijdering, Supabase, een Express-API en Docker op GCP.',
+    ],
+  },
+  'project-abbr-nlp': {
+    title: 'Disambiguatie van medische afkortingen',
+    overview:
+      'Medisch NLP-systeem dat TinyBERT, BioBERT en SciBERT gebruikt om klinische afkortingen te disambigueren (F1 tot 0,89).',
+    client: 'Persoonlijk / onderzoek',
+    tags: ['NLP', 'Medische AI', 'BERT'],
+    bullets: [
+      'Een systeem voor disambiguatie van medische afkortingen ontwikkeld met negative sampling.',
+      'TinyBERT, BioBERT en SciBERT gefinetuned, waarbij met SciBERT een F1-score van 0,81 werd behaald.',
+      'Een MeDAL-dataset met 5 miljoen records verwerkt; foutanalyse verhoogde de F1-score voor belangrijke afkortingen van 77% naar 89%.',
+    ],
+  },
+  'project-skin-images': {
+    title: 'Generatie van klinische huidafbeeldingen',
+    overview:
+      'ControlNet-pijplijn getraind op aangepaste datasets met huidtinten voor de generatie van synthetische klinische huidafbeeldingen.',
+    client: 'Persoonlijk / onderzoek',
+    tags: ['Computer Vision', 'Generatieve AI', 'ControlNet'],
+    bullets: [
+      'Een ML-pijplijn gebouwd met ControlNet, getraind op aangepaste datasets met huidtinten.',
+      'Het maken van maskers, extraheren van huidtinten en genereren van prompts geautomatiseerd voor meer dan 12.000 afbeeldingen.',
+      'Gemiddelde PSNR van 27,19, gemiddelde SSIM van 0,67 en FID van 69,38 behaald.',
+    ],
+  },
+  'project-smartform': {
+    title: 'Chrome-extensie voor het automatisch invullen van slimme formulieren',
+    overview:
+      'Chrome-extensie die OpenAI gebruikt om formulieren automatisch in te vullen op basis van opgeslagen configuratie en gebruikersspecifieke prompts.',
+    client: 'Persoonlijk project',
+    tags: ['Chrome-extensie', 'OpenAI', 'Automatisering'],
+    bullets: [
+      'Vereenvoudigt het invullen van formulieren door configuratiegegevens en gebruikersspecifieke prompts te beheren.',
+      'Integreert met de OpenAI-API om antwoorden voor onvolledig ingevulde velden te genereren.',
+      'Slaat gegevens blijvend op met Chrome Storage en ondersteunt tekst-, e-mail- en keuzelijstvelden.',
+    ],
+  },
+  'project-websocket-actor': {
+    title: 'WebSocketActor',
+    overview:
+      'C++-plug-in voor Unreal Engine voor realtime WebSocket-communicatie met dynamische texture-updates op basis van binaire gegevens.',
+    client: 'Persoonlijk / NOVA XR',
+    tags: ['Unreal Engine', 'C++', 'WebSocket'],
+    bullets: [
+      'Maakt realtime WebSocket-communicatie voor Unreal Engine-applicaties mogelijk.',
+      'Verwerkt tekst en binaire gegevens en zet binaire gegevens om in textures die in realtime op materialen worden toegepast.',
+      'Bevat foutopsporing op het scherm en eenvoudige integratie met aanpasbare verbindingsinstellingen.',
+    ],
+  },
+}
+
 async function main() {
   console.log('Seeding Sanity project', projectId, dataset)
 
@@ -329,35 +439,45 @@ async function main() {
   for (const p of projects) {
     const cover = coverCache[p.cover]
     if (!cover) throw new Error(`Missing cover for ${p.title}`)
-    const doc = {
-      _id: p.id,
-      _type: 'project',
-      title: p.title,
-      slug: {_type: 'slug', current: p.slug},
-      overview: [block(p.overview)],
-      coverImage: cover,
-      client: p.client,
-      tags: p.tags,
-      duration: {
-        _type: 'duration',
-        start: p.duration.start ? new Date(p.duration.start).toISOString() : undefined,
-        end: p.duration.end ? new Date(p.duration.end).toISOString() : undefined,
-      },
-      ...(p.site ? {site: p.site} : {}),
-      ...(p.coverVideo ? {coverVideoUrl: p.coverVideo} : {}),
-      description: bulletList(p.bullets),
+    for (const language of ['en', 'nl']) {
+      const content = language === 'en' ? p : projectTranslationsNl[p.id]
+      const doc = {
+        _id: language === 'en' ? p.id : `${p.id}-nl`,
+        _type: 'project',
+        language,
+        title: content.title,
+        slug: {_type: 'slug', current: p.slug},
+        overview: [block(content.overview)],
+        coverImage: cover,
+        client: content.client,
+        tags: content.tags,
+        duration: {
+          _type: 'duration',
+          start: p.duration.start ? new Date(p.duration.start).toISOString() : undefined,
+          end: p.duration.end ? new Date(p.duration.end).toISOString() : undefined,
+        },
+        ...(p.site ? {site: p.site} : {}),
+        ...(p.coverVideo ? {coverVideoUrl: p.coverVideo} : {}),
+        description: bulletList(content.bullets),
+      }
+      projectDocs.push(doc)
     }
-    projectDocs.push(doc)
   }
 
-  const showcaseRefs = projects
-    .filter((p) => p.showcase)
-    .map((p) => ({_type: 'reference', _ref: p.id, _key: key()}))
+  const showcaseRefs = (language) =>
+    projects
+      .filter((p) => p.showcase)
+      .map((p) => ({
+        _type: 'reference',
+        _ref: language === 'en' ? p.id : `${p.id}-nl`,
+        _key: key(),
+      }))
 
   // Pages
   const aboutPage = {
     _id: 'page-about',
     _type: 'page',
+    language: 'en',
     title: 'About',
     slug: {_type: 'slug', current: 'about'},
     overview: [
@@ -396,14 +516,20 @@ async function main() {
   const educationPage = {
     _id: 'page-education',
     _type: 'page',
+    language: 'en',
     title: 'Education',
     slug: {_type: 'slug', current: 'education'},
-    overview: [block('M.S. in Artificial Intelligence (University of Bologna) and B.S. in Computer Science.')],
+    overview: [
+      block(
+        'M.S. in Artificial Intelligence (University of Bologna) and B.S. in Computer Science.',
+      ),
+    ],
     body: [
       timeline('Education', [
         milestone({
           title: 'University of Bologna',
-          description: 'Master of Science (M.S.) in Artificial Intelligence (GPA: 3.78) — Bologna, Italy',
+          description:
+            'Master of Science (M.S.) in Artificial Intelligence (GPA: 3.78) — Bologna, Italy',
           tags: ['M.S.', 'Artificial Intelligence'],
           start: '2021-09-01T00:00:00.000Z',
           end: '2024-10-01T00:00:00.000Z',
@@ -430,10 +556,13 @@ async function main() {
   const workPage = {
     _id: 'page-work',
     _type: 'page',
+    language: 'en',
     title: 'Work Experience',
     slug: {_type: 'slug', current: 'work'},
     overview: [
-      block('Computer Vision Engineer at AWENTIA, founder of PassaTeoria, and prior AI / teaching roles.'),
+      block(
+        'Computer Vision Engineer at AWENTIA, founder of PassaTeoria, and prior AI / teaching roles.',
+      ),
     ],
     body: [
       timeline('Experience', [
@@ -496,9 +625,14 @@ async function main() {
   const skillsPage = {
     _id: 'page-skills',
     _type: 'page',
+    language: 'en',
     title: 'Skills',
     slug: {_type: 'slug', current: 'skills'},
-    overview: [block('Languages, frameworks, cloud/DevOps tools, and certifications for applied AI engineering.')],
+    overview: [
+      block(
+        'Languages, frameworks, cloud/DevOps tools, and certifications for applied AI engineering.',
+      ),
+    ],
     body: [
       block('Languages'),
       ...bulletList(['Python', 'C++', 'JavaScript', 'TypeScript', 'Prolog', 'Bash', 'SQL']),
@@ -540,13 +674,16 @@ async function main() {
         'Google Cloud Digital Leader Training',
         'Google Cloud Engineer and DevOps',
       ]),
-      block('Spoken languages: English (C1), Italian (A1). Specialized areas: Computer Vision, NLP, Automation, Full-Stack Product Development.'),
+      block(
+        'Spoken languages: English (C1), Italian (A1). Specialized areas: Computer Vision, NLP, Automation, Full-Stack Product Development.',
+      ),
     ],
   }
 
   const contactPage = {
     _id: 'page-contact',
     _type: 'page',
+    language: 'en',
     title: 'Contact',
     slug: {_type: 'slug', current: 'contact'},
     overview: [
@@ -560,6 +697,7 @@ async function main() {
   const projectsPage = {
     _id: 'page-projects',
     _type: 'page',
+    language: 'en',
     title: 'Projects',
     slug: {_type: 'slug', current: 'projects'},
     overview: [
@@ -570,34 +708,314 @@ async function main() {
     body: [],
   }
 
-  const pages = [aboutPage, educationPage, workPage, skillsPage, contactPage, projectsPage]
+  const aboutPageNl = {
+    _id: 'page-about-nl',
+    _type: 'page',
+    language: 'nl',
+    title: 'Over mij',
+    slug: {_type: 'slug', current: 'about'},
+    overview: [
+      block(
+        'Edge AI-/Computer Vision-engineer gericht op realtime beeldverwerkingssystemen — van modeloptimalisatie tot productie-inferentie op edge-apparaten en Kubernetes.',
+      ),
+    ],
+    body: [
+      ...(introImage
+        ? [
+            {
+              ...introImage,
+              _key: key(),
+              caption: 'Mohammadreza Hosseini',
+              alt: 'Portret',
+            },
+          ]
+        : []),
+      block(
+        'Momenteel werk ik als Computer Vision Engineer bij Awentia, waar ik C++/GStreamer-pijplijnen bouw op Hailo- en NVIDIA-stacks (DeepStream, TensorRT, OpenVINO) en modellen implementeer met Triton Inference Server. Recente resultaten zijn onder meer circa 40% minder handmatige inspanning voor dataverzameling, circa 60% kortere implementatietijd dankzij CI/CD en stabiele realtime pijplijnen (bijvoorbeeld end-to-end detectie van meerdere veiligheidsklassen met circa 30 FPS).',
+      ),
+      linkBlock('passateoria.it', 'https://passateoria.it', {
+        before: 'Daarnaast richt ik PassaTeoria (',
+        after:
+          ') op en breng ik het product uit: een cross-platform EdTech-product (web, Android, iOS) voor het Italiaanse rijtheorie-examen, waarbij ik van begin tot eind verantwoordelijk ben voor het product, de full-stackontwikkeling, betalingen en cloudactiviteiten.',
+      }),
+      block(
+        'Nederlandse verblijfsvergunning voor het zoekjaar, geldig tot en met 30 juli 2027 — arbeid vrij toegestaan (TWV niet vereist). Per direct beschikbaar en bereid om binnen Nederland / de EU te verhuizen voor functies op locatie of in hybride vorm op het gebied van Edge AI, Computer Vision of AI-platforms en modelserving.',
+      ),
+      block(
+        'Kerntechnologieën: Python, C++, PyTorch, TensorRT, DeepStream, GStreamer, Triton, Docker, Kubernetes, Hailo, Jetson, GCP, CI/CD.',
+      ),
+    ],
+  }
+
+  const educationPageNl = {
+    _id: 'page-education-nl',
+    _type: 'page',
+    language: 'nl',
+    title: 'Opleiding',
+    slug: {_type: 'slug', current: 'education'},
+    overview: [
+      block(
+        'Master of Science in Artificial Intelligence (Universiteit van Bologna) en Bachelor of Science in Computer Science.',
+      ),
+    ],
+    body: [
+      timeline('Opleiding', [
+        milestone({
+          title: 'Universiteit van Bologna',
+          description:
+            'Master of Science (M.S.) in Artificial Intelligence (GPA: 3,78) — Bologna, Italië',
+          tags: ['M.S.', 'Artificial Intelligence'],
+          start: '2021-09-01T00:00:00.000Z',
+          end: '2024-10-01T00:00:00.000Z',
+          image: educationImage || undefined,
+          imageLayout: 'cover',
+        }),
+        milestone({
+          title: 'Universiteit van Damghan',
+          description: 'Bachelor of Science (B.S.) in Computer Science — Damghan, Iran',
+          tags: ['B.S.', 'Computer Science'],
+          start: '2015-02-01T00:00:00.000Z',
+          end: '2019-02-01T00:00:00.000Z',
+          image: educationDamghanImage || undefined,
+          imageLayout: 'cover',
+        }),
+      ]),
+      block('Publicatie'),
+      ...bulletList([
+        'Shami, S., Haecker, B., Aberger, J., Hosseini, M., Pestana, J., Krisper, M., 2024. Comparative Analysis of Transfer and Continual Learning for Vision Based Particle Classification in Plastics Sorting for Recycling. Proceedings of the Recy & Depotech Conference 2024, Montanuniversität Leoben.',
+      ]),
+    ],
+  }
+
+  const workPageNl = {
+    _id: 'page-work-nl',
+    _type: 'page',
+    language: 'nl',
+    title: 'Werkervaring',
+    slug: {_type: 'slug', current: 'work'},
+    overview: [
+      block(
+        'Computer Vision Engineer bij AWENTIA, oprichter van PassaTeoria en eerdere functies in AI en onderwijs.',
+      ),
+    ],
+    body: [
+      timeline('Ervaring', [
+        milestone({
+          title: 'AWENTIA',
+          description: 'Computer Vision Engineer',
+          tags: ['Computer Vision Engineer', 'Edge AI'],
+          start: '2024-11-01T00:00:00.000Z',
+          image: workIconAwentia || workImage || undefined,
+          points: [
+            'Samengewerkt met multidisciplinaire teams om bedrijfsvereisten te vertalen naar geautomatiseerde systemen voor dataverzameling; aangepaste firmware ontwikkeld voor ingebedde IoT-apparaten om sensorgegevens vast te leggen, waardoor de tijd voor handmatige dataverzameling met 40% afnam en schaalbare ontwikkeling van AI-modellen mogelijk werd',
+            'De end-to-endontwikkeling van productieklare AI-oplossingen geleid, van concept tot implementatie, door onderzoekspapers, open-sourcerepository’s en productdocumentatie te bestuderen om state-of-the-artmethoden te identificeren; sectoroverschrijdende computer vision-SDK’s ontwikkeld die AI-modellen in edge-apparaten integreerden voor automatisering bij klanten',
+            'Een realtime beeldverwerkingspijplijn ontwikkeld met aangepaste operators voor voor- en nabewerking en decoders voor inferentietensors, met GStreamer, Hailo Edge AI-processors en NVIDIA DeepStream met TensorRT- en OpenVINO-optimalisatie; ruwe modeluitvoer omgezet in gestructureerde metadata voor naadloze integratie door applicatieontwikkelaars',
+            'Samengewerkt met compiler- en platformteams om complexe compilatie- en implementatieproblemen in meerdere edge-runtimes te diagnosticeren en op te lossen, zodat modellen betrouwbaar op verschillende platforms konden worden uitgevoerd',
+            'Productieklare AI-modellen geïmplementeerd in schaalbare Kubernetes-omgevingen met Triton Server en CI/CD-pijplijnen opgezet die de implementatietijd met 60% verkortten en een naadloze integratie van computer vision-oplossingen in meerdere klantprojecten mogelijk maakten',
+          ],
+        }),
+        milestone({
+          title: 'PassaTeoria',
+          description: 'Oprichter & Full-stackengineer',
+          tags: ['Oprichter', 'Full-stack', 'EdTech'],
+          start: '2026-06-01T00:00:00.000Z',
+          image: coverCache['passateoria-cover.jpg'] || workIconPassateoria || undefined,
+          imageLayout: 'cover',
+          points: [
+            'PassaTeoria (passateoria.it) opgericht en uitgebracht, een cross-platform EdTech-product voor het Italiaanse rijtheorie-examen (rijbewijs A1, A, B), met web, Android (Google Play) en iOS vanuit één Expo/React Native-codebase',
+            'Een database-first contentplatform gebouwd: een theoriecursus met 25 lessen (656 secties, circa 87.000 woorden), 7.139 waar/onwaarquizvragen in ministeriële stijl en een woordenboek met meer dan 4.500 termen, inclusief tikken-om-te-vertalen en Italiaanse uitspraak; native content in 7 talen plus AI-vertaling op aanvraag voor meer dan 170 talen',
+            'De freemium-SaaS-laag end-to-end ontworpen: Google OAuth, Stripe Checkout op het web, Google Play Billing op Android, apparaatrechten, snelheidsbeperking en misbruikbeheersing, en AVG-conforme accountverwijdering',
+            'Verantwoordelijk geweest voor productieactiviteiten: Supabase (Postgres, Auth, RLS) voor cursusinhoud en voortgang van cursisten, een Express-API voor betalingen en vertalingen, Docker op GCP ingericht met Terraform, Cloudflare TLS en een Telegram-beheerbot voor het toekennen van premiumtoegang en het modereren van reacties',
+          ],
+        }),
+        milestone({
+          title: 'NOVA XR',
+          description: 'AI Integration Engineer',
+          tags: ['AI Integration Engineer'],
+          start: '2024-04-01T00:00:00.000Z',
+          end: '2024-07-01T00:00:00.000Z',
+          image: workIconNova || undefined,
+          points: [
+            'Samengewerkt met klantteams om uitdagingen rond realtime AI-integratie te diagnosticeren, vereisten vertaald naar technische specificaties en inferentiepijplijnen met lage latentie geïmplementeerd die voor productie-AI-beeldverwerkingssystemen binnen Unreal Engine een inferentietijd van 20 ms behaalden',
+            'Productieklare AI-services geïmplementeerd met Docker en Kubernetes voor schaalbare modelserving en taakverdeling, met betrouwbare prestaties voor klantgerichte applicaties',
+          ],
+        }),
+        milestone({
+          title: 'Universiteit van Bologna',
+          description: 'Onderwijsassistent',
+          tags: ['Onderwijsassistent'],
+          start: '2022-09-01T00:00:00.000Z',
+          end: '2025-09-01T00:00:00.000Z',
+          image: workIconUnibo || educationImage || undefined,
+          points: [
+            'Complexe AI-concepten uitgelegd aan meer dan 300 niet-technische studenten, technische specificaties vertaald naar toegankelijke lesmaterialen en met docenten samengewerkt om de cursusinhoud af te stemmen op eisen uit de sector, wat leidde tot betere studieresultaten',
+            'Samengewerkt met professoren Simone Martini en Michael Lodi aan de voorbereiding van cursusmateriaal en de beoordeling van opdrachten, waarbij academische en praktische AI-toepassingen met elkaar werden verbonden',
+          ],
+        }),
+      ]),
+    ],
+  }
+
+  const skillsPageNl = {
+    _id: 'page-skills-nl',
+    _type: 'page',
+    language: 'nl',
+    title: 'Vaardigheden',
+    slug: {_type: 'slug', current: 'skills'},
+    overview: [
+      block(
+        'Talen, frameworks, cloud- en DevOps-tools en certificeringen voor toegepaste AI-engineering.',
+      ),
+    ],
+    body: [
+      block('Programmeertalen'),
+      ...bulletList(['Python', 'C++', 'JavaScript', 'TypeScript', 'Prolog', 'Bash', 'SQL']),
+      block('Frameworks en bibliotheken'),
+      ...bulletList([
+        'PyTorch',
+        'TensorFlow',
+        'Scikit-learn',
+        'LangChain',
+        'OpenCV',
+        'SpaCy',
+        'Transformers',
+        'Django',
+        'Flask',
+        'React',
+        'React Native',
+        'Expo',
+      ]),
+      block('Tools en platforms'),
+      ...bulletList([
+        'Docker',
+        'Kubernetes',
+        'AWS',
+        'Azure',
+        'GCP',
+        'Terraform',
+        'NVIDIA TensorRT',
+        'NVIDIA DeepStream',
+        'OpenVINO',
+        'MLflow',
+        'PostgreSQL',
+        'Supabase',
+        'CI/CD',
+      ]),
+      block('Certificeringen'),
+      ...bulletList([
+        'AWS Cloud Quest, Cloud Practitioner',
+        'The Protection of Personal Data (GDPR and Cybersecurity)',
+        'Google Cloud Digital Leader Training',
+        'Google Cloud Engineer and DevOps',
+      ]),
+      block(
+        'Gesproken talen: Engels (C1), Italiaans (A1). Specialisaties: Computer Vision, NLP, automatisering en full-stackproductontwikkeling.',
+      ),
+    ],
+  }
+
+  const contactPageNl = {
+    _id: 'page-contact-nl',
+    _type: 'page',
+    language: 'nl',
+    title: 'Contact',
+    slug: {_type: 'slug', current: 'contact'},
+    overview: [
+      block(
+        'Neem contact op via e-mail, telefoon of sociale media — ik praat graag over Edge AI, computer vision en productontwikkeling.',
+      ),
+    ],
+    body: [
+      block('De contactgegevens staan op deze pagina en kunnen met één klik worden gekopieerd.'),
+    ],
+  }
+
+  const projectsPageNl = {
+    _id: 'page-projects-nl',
+    _type: 'page',
+    language: 'nl',
+    title: 'Projecten',
+    slug: {_type: 'slug', current: 'projects'},
+    overview: [
+      block(
+        'Een selectie van werk op het gebied van Edge AI, computer vision en producten — van realtime pijplijnen tot full-stackproductoplevering.',
+      ),
+    ],
+    body: [],
+  }
+
+  const pages = [
+    aboutPage,
+    educationPage,
+    workPage,
+    skillsPage,
+    contactPage,
+    projectsPage,
+    aboutPageNl,
+    educationPageNl,
+    workPageNl,
+    skillsPageNl,
+    contactPageNl,
+    projectsPageNl,
+  ]
 
   const home = {
     _id: 'home',
     _type: 'home',
+    language: 'en',
     title: 'Mohammadreza Hosseini',
     overview: [
       block(
         'Edge AI / Computer Vision engineer focused on real-time vision systems — from model optimization to production serving on edge devices and Kubernetes.',
       ),
     ],
-    showcaseProjects: showcaseRefs,
+    showcaseProjects: showcaseRefs('en'),
   }
 
-  const menuItems = [
-    {_type: 'reference', _ref: 'home', _key: key()},
-    {_type: 'reference', _ref: 'page-about', _key: key()},
-    {_type: 'reference', _ref: 'page-work', _key: key()},
-    {_type: 'reference', _ref: 'page-projects', _key: key()},
-    {_type: 'reference', _ref: 'page-education', _key: key()},
-    {_type: 'reference', _ref: 'page-skills', _key: key()},
-    {_type: 'reference', _ref: 'page-contact', _key: key()},
-  ]
+  const homeNl = {
+    _id: 'home-nl',
+    _type: 'home',
+    language: 'nl',
+    title: 'Mohammadreza Hosseini',
+    overview: [
+      block(
+        'Edge AI-/Computer Vision-engineer gericht op realtime beeldverwerkingssystemen — van modeloptimalisatie tot productie-inferentie op edge-apparaten en Kubernetes.',
+      ),
+    ],
+    showcaseProjects: showcaseRefs('nl'),
+  }
+
+  const menuItems = (language) => {
+    const suffix = language === 'en' ? '' : '-nl'
+    return [
+      {_type: 'reference', _ref: `home${suffix}`, _key: key()},
+      {_type: 'reference', _ref: `page-about${suffix}`, _key: key()},
+      {_type: 'reference', _ref: `page-work${suffix}`, _key: key()},
+      {_type: 'reference', _ref: `page-projects${suffix}`, _key: key()},
+      {_type: 'reference', _ref: `page-education${suffix}`, _key: key()},
+      {_type: 'reference', _ref: `page-skills${suffix}`, _key: key()},
+      {_type: 'reference', _ref: `page-contact${suffix}`, _key: key()},
+    ]
+  }
 
   const settings = {
     _id: 'settings',
     _type: 'settings',
-    menuItems,
+    language: 'en',
+    menuItems: menuItems('en'),
+    footer: [
+      block('Mohammadreza Hosseini · Edge AI / Computer Vision'),
+      linkBlock('GitHub', 'https://github.com/mowhammadrezaa'),
+      linkBlock('LinkedIn', 'https://linkedin.com/in/mohammadreza-hosseini'),
+    ],
+    ...(introImage ? {ogImage: introImage} : {}),
+  }
+
+  const settingsNl = {
+    _id: 'settings-nl',
+    _type: 'settings',
+    language: 'nl',
+    menuItems: menuItems('nl'),
     footer: [
       block('Mohammadreza Hosseini · Edge AI / Computer Vision'),
       linkBlock('GitHub', 'https://github.com/mowhammadrezaa'),
@@ -607,7 +1025,7 @@ async function main() {
   }
 
   let tx = client.transaction()
-  for (const doc of [...projectDocs, ...pages, home, settings]) {
+  for (const doc of [...projectDocs, ...pages, home, homeNl, settings, settingsNl]) {
     tx = tx.createOrReplace(doc)
   }
   const result = await tx.commit()

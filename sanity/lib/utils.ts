@@ -27,14 +27,20 @@ export function urlForOpenGraphImage(image: SanityImageSource | null | undefined
   return urlForImage(image)?.width(1200).height(627).fit('crop').url()
 }
 
-export function resolveHref(documentType?: string, slug?: string | null): string | undefined {
+export function resolveHref(
+  documentType?: string,
+  slug?: string | null,
+  language?: string | null,
+): string | undefined {
+  const locale = language === 'en' ? 'en' : 'nl'
+
   switch (documentType) {
     case 'home':
-      return '/'
+      return `/${locale}`
     case 'page':
-      return slug ? `/${slug}` : undefined
+      return slug ? `/${locale}/${slug}` : undefined
     case 'project':
-      return slug ? `/projects/${slug}` : undefined
+      return slug ? `/${locale}/projects/${slug}` : undefined
     default:
       console.warn('Invalid document type:', documentType)
       return undefined

@@ -9,9 +9,10 @@ interface HeaderProps {
   centered?: boolean
   description?: null | React.ComponentProps<typeof CustomPortableText>['value']
   title?: string | null
+  locale?: 'nl' | 'en'
 }
 export function Header(props: HeaderProps) {
-  const {id, type, path, title, description, centered = false} = props
+  const {id, type, path, title, description, centered = false, locale = 'en'} = props
   if (!description && !title) {
     return null
   }
@@ -29,7 +30,7 @@ export function Header(props: HeaderProps) {
       {/* Description */}
       {Array.isArray(description) && (
         <div className="mt-4 text-pretty font-serif text-xl text-gray-600 md:text-2xl">
-          <CustomPortableText id={id} type={type} path={path} value={description} />
+          <CustomPortableText id={id} type={type} path={path} value={description} locale={locale} />
         </div>
       )}
     </div>

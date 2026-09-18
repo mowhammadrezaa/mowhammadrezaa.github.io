@@ -1,6 +1,8 @@
 import {HomeIcon} from '@sanity/icons/Home'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
+import {DEFAULT_LANGUAGE, languageField} from '../locale'
+
 export default defineType({
   name: 'home',
   title: 'Home',
@@ -9,6 +11,7 @@ export default defineType({
   // Uncomment below to have edits publish automatically as you type
   // liveEdit: true,
   fields: [
+    languageField,
     defineField({
       name: 'title',
       description: 'This field is the title of your personal website.',
@@ -67,17 +70,28 @@ export default defineType({
         defineArrayMember({
           type: 'reference',
           to: [{type: 'project'}],
+          options: {
+            filter: ({document}) => {
+              const language =
+                typeof document.language === 'string' ? document.language : DEFAULT_LANGUAGE
+              return {
+                filter: 'language == $language',
+                params: {language},
+              }
+            },
+          },
         }),
       ],
     }),
   ],
   preview: {
     select: {
+      language: 'language',
       title: 'title',
     },
-    prepare({title}) {
+    prepare({language, title}) {
       return {
-        subtitle: 'Home',
+        subtitle: `Home · ${language?.toUpperCase() || 'No language'}`,
         title,
       }
     },

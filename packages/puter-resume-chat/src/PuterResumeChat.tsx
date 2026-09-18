@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent} from 'react'
+import {useEffect, useId, useRef, useState, type KeyboardEvent, type SyntheticEvent} from 'react'
 
 import {buildSystemPrompt} from './buildSystemPrompt'
 import {ChatMarkdown} from './ChatMarkdown'
@@ -19,6 +19,13 @@ const DEFAULT_QUESTIONS = [
   'What are their strongest skills?',
   'Tell me about a recent project',
   'Are they available to hire?',
+]
+
+const DUTCH_DEFAULT_QUESTIONS = [
+  'Wat is zijn huidige functie?',
+  'Wat zijn zijn sterkste vaardigheden?',
+  'Vertel me over een recent project',
+  'Is hij beschikbaar voor werk?',
 ]
 
 function extractText(result: unknown): string {
@@ -41,7 +48,7 @@ function extractText(result: unknown): string {
         .map((part) => {
           if (typeof part === 'string') return part
           if (part && typeof part === 'object' && 'text' in part) {
-            return String((part as {text?: string}).text || '')
+            return (part as {text?: string}).text || ''
           }
           return ''
         })
@@ -127,10 +134,11 @@ function ChatIcon() {
 export function PuterResumeChat({
   personName,
   knowledgeBase,
+  locale = 'en',
   subtitle,
   intro,
-  suggestedQuestions = DEFAULT_QUESTIONS,
-  launcherLabel = 'Ask about me',
+  suggestedQuestions,
+  launcherLabel,
   title,
   model = 'gpt-4o-mini',
   className,
@@ -144,33 +152,73 @@ export function PuterResumeChat({
   const [history, setHistory] = useState<ChatMessage[]>([])
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const messageSequence = useRef(0)
 
-  const heading = title || `Ask about ${personName}`
+  const isDutch = locale === 'nl'
+  const questions = suggestedQuestions ?? (isDutch ? DUTCH_DEFAULT_QUESTIONS : DEFAULT_QUESTIONS)
+  const heading = title || (isDutch ? `Vraag over ${personName}` : `Ask about ${personName}`)
   const introCopy =
-    intro || `Ask anything about ${personName}'s work, skills, projects, or availability.`
+    intro ||
+    (isDutch
+      ? `Vraag alles over het werk, de vaardigheden, projecten of beschikbaarheid van ${personName}.`
+      : `Ask anything about ${personName}'s work, skills, projects, or availability.`)
+  const copy = isDutch
+    ? {
+        assistant: 'Cv-assistent',
+        close: 'Chat sluiten',
+        thinking: 'Bezig met nadenken',
+        examples: 'Voorbeeldvragen',
+        placeholder: `Vraag over ${personName}…`,
+        message: 'Bericht',
+        send: 'Versturen',
+        launcher: launcherLabel || 'Vraag over mij',
+        noResponse: 'Geen antwoord ontvangen. Probeer het opnieuw.',
+        temporaryError: 'Er is tijdelijk een probleem met het model. Probeer het opnieuw.',
+        unreachable: 'De assistent is niet bereikbaar. Probeer het over een moment opnieuw.',
+      }
+    : {
+        assistant: 'Resume assistant',
+        close: 'Close chat',
+        thinking: 'Thinking',
+        examples: 'Example questions',
+        placeholder: `Ask about ${personName}…`,
+        message: 'Message',
+        send: 'Send',
+        launcher: launcherLabel || 'Ask about me',
+        noResponse: 'No response received. Please try again.',
+        temporaryError: 'The assistant hit a temporary model error. Please try again.',
+        unreachable: 'Could not reach the assistant. Try again in a moment.',
+      }
 
+  const messageCount = messages.length
   useEffect(() => {
-    if (!open) return
-    bottomRef.current?.scrollIntoView({behavior: 'smooth', block: 'end'})
-  }, [messages, open, busy])
+    if (!open) return undefined
+    if (messageCount >= 0) {
+      bottomRef.current?.scrollIntoView({behavior: 'smooth', block: 'end'})
+    }
+    return undefined
+  }, [messageCount, open])
 
   useEffect(() => {
     if (open) {
       const t = window.setTimeout(() => inputRef.current?.focus(), 180)
       return () => window.clearTimeout(t)
     }
+    return undefined
   }, [open])
 
   async function send(raw: string) {
     const text = raw.trim()
     if (!text || busy) return
 
+    messageSequence.current += 1
+    const sequence = messageSequence.current
     const userMessage: UiMessage = {
-      id: `u-${Date.now()}`,
+      id: `u-${sequence}`,
       role: 'user',
       content: text,
     }
-    const assistantId = `a-${Date.now()}`
+    const assistantId = `a-${sequence}`
 
     setInput('')
     setBusy(true)
@@ -178,7 +226,7 @@ export function PuterResumeChat({
 
     const nextHistory: ChatMessage[] = [...history, {role: 'user', content: text}]
     const payload: ChatMessage[] = [
-      {role: 'system', content: buildSystemPrompt(personName, knowledgeBase)},
+      {role: 'system', content: buildSystemPrompt(personName, knowledgeBase, locale)},
       ...nextHistory,
     ]
 
@@ -191,7 +239,7 @@ export function PuterResumeChat({
       })
 
       if (!answer.trim()) {
-        throw new Error('No response received. Please try again.')
+        throw new Error(copy.noResponse)
       }
 
       setHistory([...nextHistory, {role: 'assistant', content: answer}])
@@ -199,7 +247,7 @@ export function PuterResumeChat({
       const message = (() => {
         if (error instanceof Error && error.message) {
           if (/reasoning_content/i.test(error.message)) {
-            return 'The assistant hit a temporary model error. Please try again.'
+            return copy.temporaryError
           }
           return error.message
         }
@@ -208,18 +256,18 @@ export function PuterResumeChat({
           const value = (error as {message?: unknown}).message
           if (typeof value === 'string' && value) {
             if (/reasoning_content/i.test(value)) {
-              return 'The assistant hit a temporary model error. Please try again.'
+              return copy.temporaryError
             }
             return value
           }
         }
-        return 'Could not reach the assistant. Try again in a moment.'
+        return copy.unreachable
       })()
       setMessages((prev) =>
         prev.map((m) =>
           m.id === assistantId
             ? {
-                id: `e-${Date.now()}`,
+                id: `e-${sequence}`,
                 role: 'error',
                 content: message,
               }
@@ -231,7 +279,7 @@ export function PuterResumeChat({
     }
   }
 
-  function onSubmit(event: FormEvent) {
+  function onSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault()
     void send(input)
   }
@@ -246,23 +294,22 @@ export function PuterResumeChat({
   return (
     <div className={[styles.root, className].filter(Boolean).join(' ')}>
       {open ? (
-        <section
+        <dialog
+          open
           id={panelId}
           className={styles.panel}
-          role="dialog"
-          aria-modal="true"
           aria-label={heading}
         >
           <header className={styles.header}>
             <div>
-              <p className={styles.eyebrow}>Resume assistant</p>
+              <p className={styles.eyebrow}>{copy.assistant}</p>
               <h2 className={styles.title}>{heading}</h2>
               {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
             </div>
             <button
               type="button"
               className={styles.close}
-              aria-label="Close chat"
+              aria-label={copy.close}
               onClick={() => setOpen(false)}
             >
               ×
@@ -289,7 +336,7 @@ export function PuterResumeChat({
                 ].join(' ')}
               >
                 {message.role === 'assistant' && !message.content && busy ? (
-                  <span className={styles.typing} aria-label="Thinking">
+                  <span className={styles.typing} aria-label={copy.thinking}>
                     <span />
                     <span />
                     <span />
@@ -304,9 +351,9 @@ export function PuterResumeChat({
             <div ref={bottomRef} />
           </div>
 
-          {suggestedQuestions.length > 0 && (
-            <div className={styles.suggestionsBar} aria-label="Example questions">
-              {suggestedQuestions.map((question) => (
+          {questions.length > 0 && (
+            <div className={styles.suggestionsBar} aria-label={copy.examples}>
+              {questions.map((question) => (
                 <button
                   key={question}
                   type="button"
@@ -323,7 +370,7 @@ export function PuterResumeChat({
           <form
             className={[
               styles.composer,
-              suggestedQuestions.length === 0 ? styles.composerSolo : '',
+              questions.length === 0 ? styles.composerSolo : '',
             ]
               .filter(Boolean)
               .join(' ')}
@@ -336,15 +383,15 @@ export function PuterResumeChat({
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={onKeyDown}
               rows={1}
-              placeholder={`Ask about ${personName}…`}
+              placeholder={copy.placeholder}
               disabled={busy}
-              aria-label="Message"
+              aria-label={copy.message}
             />
             <button className={styles.send} type="submit" disabled={busy || !input.trim()}>
-              Send
+              {copy.send}
             </button>
           </form>
-        </section>
+        </dialog>
       ) : (
         <button
           type="button"
@@ -356,7 +403,7 @@ export function PuterResumeChat({
           <span className={styles.launcherIcon}>
             <ChatIcon />
           </span>
-          <span className={styles.launcherLabel}>{launcherLabel}</span>
+          <span className={styles.launcherLabel}>{copy.launcher}</span>
         </button>
       )}
     </div>

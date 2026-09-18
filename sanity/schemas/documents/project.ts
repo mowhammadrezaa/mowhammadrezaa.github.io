@@ -2,6 +2,8 @@ import {DocumentIcon} from '@sanity/icons/Document'
 import {ImageIcon} from '@sanity/icons/Image'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
+import {isUniqueSlugPerLanguage, languageField} from '../locale'
+
 export default defineType({
   name: 'project',
   title: 'Project',
@@ -10,6 +12,7 @@ export default defineType({
   // Uncomment below to have edits publish automatically as you type
   // liveEdit: true,
   fields: [
+    languageField,
     defineField({
       name: 'title',
       description: 'This field is the title of your project.',
@@ -24,7 +27,7 @@ export default defineType({
       options: {
         source: 'title',
         maxLength: 96,
-        isUnique: (value, context) => context.defaultIsUnique(value, context),
+        isUnique: isUniqueSlugPerLanguage,
       },
       validation: (rule) => rule.required(),
     }),

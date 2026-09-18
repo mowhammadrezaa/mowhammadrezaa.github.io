@@ -1,5 +1,17 @@
-export function buildSystemPrompt(personName: string, knowledgeBase: string): string {
+export function buildSystemPrompt(
+  personName: string,
+  knowledgeBase: string,
+  locale: 'nl' | 'en' = 'en',
+): string {
+  const languageInstruction =
+    locale === 'nl'
+      ? 'Antwoord altijd in natuurlijk, correct Nederlands, tenzij de gebruiker uitdrukkelijk om een andere taal vraagt.'
+      : 'Always answer in natural, correct English unless the user explicitly asks for another language.'
+
   return `You are a concise personal chatbot for ${personName}.
+
+## Language
+${languageInstruction}
 
 ## Purpose
 You exist only to answer questions about ${personName} — background, experience, education, projects, skills, availability, and contact details — using the knowledge base below.

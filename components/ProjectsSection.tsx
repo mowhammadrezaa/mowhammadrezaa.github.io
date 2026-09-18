@@ -20,14 +20,22 @@ export async function ProjectsSection({
   overview,
   perspective,
   stega,
+  locale = 'en',
 }: {
   id: string | null
   type: string | null
   title?: string | null
   overview?: ProjectsOverview
+  locale?: 'nl' | 'en'
 } & DynamicFetchOptions) {
-  const {data: home} = await sanityFetch({query: showcaseProjectsQuery, perspective, stega})
+  const {data: home} = await sanityFetch({
+    query: showcaseProjectsQuery,
+    params: {language: locale},
+    perspective,
+    stega,
+  })
   const showcaseProjects = home?.showcaseProjects ?? []
+  const isDutch = locale === 'nl'
 
   const dataAttribute = home?._id
     ? createDataAttribute({
@@ -43,14 +51,15 @@ export async function ProjectsSection({
         id={id}
         type={type}
         path={['overview']}
-        title={title || 'Projects'}
+        title={title || (isDutch ? 'Projecten' : 'Projects')}
         description={overview}
+        locale={locale}
       />
 
       <div className="mx-auto max-w-[100rem] rounded-md border">
         <OptimisticSortOrder id={home?._id} path="showcaseProjects">
           {showcaseProjects.map((project) => {
-            const href = resolveHref(project?._type, project?.slug)
+            const href = resolveHref(project?._type, project?.slug, locale)
             if (!href) return null
             return (
               <AppLink
@@ -64,7 +73,15 @@ export async function ProjectsSection({
                   <ProjectCoverMedia
                     image={project.coverImage}
                     videoUrl={project.coverVideoUrl}
-                    alt={`Cover media from ${project.title}`}
+                    alt={
+                      project.title
+                        ? isDutch
+                          ? `Projectmedia voor ${project.title}`
+                          : `Project media for ${project.title}`
+                        : isDutch
+                          ? 'Projectmedia'
+                          : 'Project media'
+                    }
                   />
                 </div>
                 <div className="flex xl:w-1/4">
@@ -80,6 +97,7 @@ export async function ProjectsSection({
                             type={project._type}
                             path={['overview']}
                             value={project.overview}
+                            locale={locale}
                           />
                         </div>
                       )}

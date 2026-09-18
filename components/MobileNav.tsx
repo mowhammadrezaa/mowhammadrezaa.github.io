@@ -1,7 +1,6 @@
 'use client'
 
 import {useEffect, useId, useState} from 'react'
-import {usePathname} from 'next/navigation'
 
 import {NavLink} from '@/components/NavLink'
 
@@ -14,21 +13,26 @@ export type MobileNavItem = {
 }
 
 function navTestId(href: string) {
-  if (href.startsWith('/#')) return `nav-link-${href.slice(2)}`
+  if (href.includes('#')) return `nav-link-${href.split('#')[1]}`
   return `nav-link${href.replaceAll('/', '-')}`
 }
 
-export function MobileNav({items}: {items: MobileNavItem[]}) {
+export function MobileNav({
+  items,
+  primaryLabel,
+  openLabel,
+  closeLabel,
+}: {
+  items: MobileNavItem[]
+  primaryLabel: string
+  openLabel: string
+  closeLabel: string
+}) {
   const [open, setOpen] = useState(false)
-  const pathname = usePathname()
   const panelId = useId()
 
   useEffect(() => {
-    setOpen(false)
-  }, [pathname])
-
-  useEffect(() => {
-    if (!open) return
+    if (!open) return undefined
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false)
     }
@@ -42,29 +46,29 @@ export function MobileNav({items}: {items: MobileNavItem[]}) {
   }, [open])
 
   return (
-    <div className="lg:hidden">
+    <div className="xl:hidden">
       <button
         type="button"
         className="inline-flex h-10 w-10 items-center justify-center border border-black/15 text-black transition hover:border-black/40"
         aria-expanded={open}
         aria-controls={panelId}
-        aria-label={open ? 'Close menu' : 'Open menu'}
+        aria-label={open ? closeLabel : openLabel}
         onClick={() => setOpen((value) => !value)}
       >
         {open ? <CloseIcon /> : <MenuIcon />}
       </button>
 
       {open && (
-        <div className="fixed inset-0 top-[var(--site-header-height,4.5rem)] z-40 lg:hidden">
+        <div className="fixed inset-0 top-[var(--site-header-height,4.5rem)] z-40 xl:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-black/20"
-            aria-label="Close menu"
+            aria-label={closeLabel}
             onClick={() => setOpen(false)}
           />
           <nav
             id={panelId}
-            aria-label="Primary"
+            aria-label={primaryLabel}
             className="absolute inset-x-0 top-0 border-b border-black/10 bg-white px-4 py-3 shadow-sm"
           >
             <ul className="flex flex-col">

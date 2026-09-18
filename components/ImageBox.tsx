@@ -14,11 +14,12 @@ interface ImageBoxProps {
   'quality'?: number
   'unoptimized'?: boolean
   'data-sanity'?: string
+  'locale'?: 'nl' | 'en'
 }
 
 export default function ImageBox({
   image,
-  alt = 'Cover image',
+  alt,
   width = 3500,
   height = 2000,
   size = '100vw',
@@ -26,6 +27,7 @@ export default function ImageBox({
   preserveAlpha = false,
   quality,
   unoptimized = false,
+  locale = 'en',
   ...props
 }: ImageBoxProps) {
   const builder = preserveAlpha
@@ -43,7 +45,7 @@ export default function ImageBox({
       {imageUrl && (
         <Image
           className={`absolute h-full w-full ${preserveAlpha ? 'object-contain' : 'object-cover'}`}
-          alt={alt}
+          alt={alt ?? (locale === 'nl' ? 'Afbeelding' : 'Image')}
           width={width}
           height={height}
           sizes={size}

@@ -50,13 +50,16 @@ interface ContactSectionProps {
   type: string | null
   title?: string | null
   overview?: PortableValue | null
+  locale?: 'nl' | 'en'
 }
 
-export function ContactSection({id, type, title, overview}: ContactSectionProps) {
+export function ContactSection({id, type, title, overview, locale = 'en'}: ContactSectionProps) {
+  const isDutch = locale === 'nl'
+  const labels: Record<string, string> = isDutch ? {Email: 'E-mail', Phone: 'Telefoon'} : {}
   return (
     <article className="mx-auto max-w-3xl pb-16 md:pb-24">
       <p className="font-sans text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
-        Get in touch
+        {isDutch ? 'Neem contact op' : 'Get in touch'}
       </p>
       {title && (
         <h1
@@ -75,6 +78,7 @@ export function ContactSection({id, type, title, overview}: ContactSectionProps)
             path={['overview']}
             paragraphClasses="text-inherit"
             value={overview}
+            locale={locale}
           />
         </div>
       )}
@@ -87,7 +91,7 @@ export function ContactSection({id, type, title, overview}: ContactSectionProps)
           >
             <div className="min-w-0">
               <p className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
-                {item.label}
+                {labels[item.label] || item.label}
               </p>
               <a
                 href={item.href}
@@ -98,17 +102,23 @@ export function ContactSection({id, type, title, overview}: ContactSectionProps)
                 {item.display}
               </a>
             </div>
-            <CopyButton value={item.copyValue} label={item.label} />
+            <CopyButton
+              value={item.copyValue}
+              label={labels[item.label] || item.label}
+              locale={locale}
+            />
           </li>
         ))}
       </ul>
 
       <aside className="mt-10 border-l-2 border-black pl-5 md:pl-6">
         <p className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
-          Availability
+          {isDutch ? 'Beschikbaarheid' : 'Availability'}
         </p>
         <p className="mt-3 font-serif text-base leading-relaxed text-gray-700 md:text-lg">
-          Available immediately · Willing to relocate · Dutch Zoekjaar through Jul 2027
+          {isDutch
+            ? 'Per direct beschikbaar · Bereid te verhuizen · Nederlandse zoekjaarvergunning geldig t/m juli 2027'
+            : 'Available immediately · Willing to relocate · Dutch orientation-year permit valid through July 2027'}
         </p>
       </aside>
     </article>

@@ -39,8 +39,10 @@ export function loadPuter(): Promise<PuterGlobal> {
     const script = document.createElement('script')
     script.src = PUTER_SCRIPT
     script.async = true
-    script.onload = onReady
-    script.onerror = () => reject(new Error('Failed to load Puter.js'))
+    script.addEventListener('load', onReady, {once: true})
+    script.addEventListener('error', () => reject(new Error('Failed to load Puter.js')), {
+      once: true,
+    })
     document.head.appendChild(script)
   })
 

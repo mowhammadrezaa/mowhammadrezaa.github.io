@@ -2,12 +2,15 @@ import {DocumentIcon} from '@sanity/icons/Document'
 import {ImageIcon} from '@sanity/icons/Image'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
+import {isUniqueSlugPerLanguage, languageField} from '../locale'
+
 export default defineType({
   type: 'document',
   name: 'page',
   title: 'Page',
   icon: DocumentIcon,
   fields: [
+    languageField,
     defineField({
       type: 'string',
       name: 'title',
@@ -20,6 +23,7 @@ export default defineType({
       title: 'Slug',
       options: {
         source: 'title',
+        isUnique: isUniqueSlugPerLanguage,
       },
       validation: (rule) => rule.required(),
     }),
@@ -118,11 +122,12 @@ export default defineType({
   ],
   preview: {
     select: {
+      language: 'language',
       title: 'title',
     },
-    prepare({title}) {
+    prepare({language, title}) {
       return {
-        subtitle: 'Page',
+        subtitle: `Page · ${language?.toUpperCase() || 'No language'}`,
         title,
       }
     },

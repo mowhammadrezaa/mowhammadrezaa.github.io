@@ -4,11 +4,17 @@ import {CopyButton} from '@/components/CopyButton'
 
 const EMAIL = 'm.hosseini.eng@outlook.com'
 
-export function CopyEmailButton({email = EMAIL}: {email?: string}) {
+export function CopyEmailButton({
+  email = EMAIL,
+  locale = 'en',
+}: {
+  email?: string
+  locale?: 'nl' | 'en'
+}) {
   return (
     <div className="mt-10 border-t border-black/[0.08] pt-8">
       <p className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
-        Email
+        {locale === 'nl' ? 'E-mail' : 'Email'}
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <a
@@ -17,7 +23,7 @@ export function CopyEmailButton({email = EMAIL}: {email?: string}) {
         >
           {email}
         </a>
-        <CopyButton value={email} label="email" />
+        <CopyButton value={email} label={locale === 'nl' ? 'e-mail' : 'email'} locale={locale} />
       </div>
     </div>
   )

@@ -4,8 +4,15 @@ import {useIsPresentationTool} from 'next-sanity/hooks'
 import {useEffect} from 'react'
 import {toast} from 'sonner'
 
-export function DraftModeToast({action}: {action: () => Promise<void>}) {
+export function DraftModeToast({
+  action,
+  locale,
+}: {
+  action: () => Promise<void>
+  locale: 'nl' | 'en'
+}) {
   const isPresentationTool = useIsPresentationTool()
+  const isDutch = locale === 'nl'
 
   useEffect(() => {
     /**
@@ -16,20 +23,25 @@ export function DraftModeToast({action}: {action: () => Promise<void>}) {
       return () => {}
     }
 
-    const toastId = toast('Draft Mode Enabled', {
+    const toastId = toast(isDutch ? 'Conceptmodus ingeschakeld' : 'Draft Mode Enabled', {
       id: 'draft-mode-toast',
-      description: 'Content is live, refreshing automatically',
+      description: isDutch
+        ? 'Inhoud wordt live en automatisch bijgewerkt'
+        : 'Content is live, refreshing automatically',
       duration: Infinity,
       action: {
-        label: 'Disable',
-        onClick: () => toast.promise(action(), {loading: 'Disabling draft mode…'}),
+        label: isDutch ? 'Uitschakelen' : 'Disable',
+        onClick: () =>
+          toast.promise(action(), {
+            loading: isDutch ? 'Conceptmodus uitschakelen…' : 'Disabling draft mode…',
+          }),
       },
     })
     return () => {
       // If this component is unmounted we assume it's because draft mode is no longer enabled
       toast.dismiss(toastId)
     }
-  }, [action, isPresentationTool])
+  }, [action, isDutch, isPresentationTool])
 
   return null
 }

@@ -6,10 +6,10 @@ import {useEffect} from 'react'
 export function HomeHashScroll() {
   useEffect(() => {
     const hash = window.location.hash
-    if (!hash || hash === '#') return
+    if (!hash || hash === '#') return undefined
     const id = decodeURIComponent(hash.slice(1))
     const target = document.getElementById(id)
-    if (!target) return
+    if (!target) return undefined
     // Wait a tick for layout/images
     const frame = window.requestAnimationFrame(() => {
       target.scrollIntoView({behavior: 'smooth', block: 'start'})

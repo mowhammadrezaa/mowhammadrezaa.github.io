@@ -23,12 +23,12 @@ function getPlainText(block: BodyBlock | undefined): string {
 }
 
 function isStackBlock(block: BodyBlock): boolean {
-  return getPlainText(block).startsWith('Core stack:')
+  return /^(Core stack|Kernstack|Kerntechnologieën):/i.test(getPlainText(block))
 }
 
 function isAvailabilityBlock(block: BodyBlock): boolean {
   const text = getPlainText(block)
-  return text.includes('Zoekjaar') || text.includes('Orientation Year')
+  return /zoekjaar|oriëntatiejaar|orientation year/i.test(text)
 }
 
 interface AboutSectionProps {
@@ -37,9 +37,11 @@ interface AboutSectionProps {
   title?: string | null
   overview?: PortableValue | null
   body?: BodyBlock[] | null
+  locale?: 'nl' | 'en'
 }
 
-export function AboutSection({id, type, title, overview, body}: AboutSectionProps) {
+export function AboutSection({id, type, title, overview, body, locale = 'en'}: AboutSectionProps) {
+  const isDutch = locale === 'nl'
   const blocks = Array.isArray(body) ? body : []
   const image = blocks.find((b) => b._type === 'image')
   const textBlocks = blocks.filter((b) => b._type === 'block')
@@ -51,7 +53,9 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
   const overviewText = Array.isArray(overview)
     ? stegaClean(
         overview
-          .flatMap((block) => ('children' in (block as object) ? (block as BodyBlock).children || [] : []))
+          .flatMap((block) =>
+            'children' in (block as object) ? (block as BodyBlock).children || [] : [],
+          )
           .map((c) => c.text || '')
           .join(''),
       )
@@ -59,7 +63,7 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
   const story = narrative.filter((b) => getPlainText(b) !== overviewText)
 
   const stackItems = getPlainText(stack)
-    .replace(/^Core stack:\s*/i, '')
+    .replace(/^(Core stack|Kernstack|Kerntechnologieën):\s*/i, '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
@@ -72,7 +76,7 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
             <div className="relative mx-auto aspect-[4/5] max-w-[240px] overflow-hidden md:mx-0 md:max-w-none">
               <ImageBox
                 image={image}
-                alt={image.alt || 'Portrait'}
+                alt={image.alt || (isDutch ? 'Portret' : 'Portrait')}
                 width={900}
                 height={1125}
                 size="(min-width: 768px) 280px, 70vw"
@@ -91,7 +95,7 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
         <div className="min-w-0">
           {title && (
             <p className="font-sans text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
-              Profile
+              {isDutch ? 'Profiel' : 'Profile'}
             </p>
           )}
           {title && (
@@ -111,6 +115,7 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
                 path={['overview']}
                 paragraphClasses="text-inherit"
                 value={overview}
+                locale={locale}
               />
             </div>
           )}
@@ -123,6 +128,7 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
                 path={['body']}
                 paragraphClasses="font-serif text-lg leading-relaxed text-gray-600 md:text-xl md:leading-relaxed"
                 value={story as PortableValue}
+                locale={locale}
               />
             </div>
           )}
@@ -130,7 +136,7 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
           {availability && (
             <aside className="mt-10 border-l-2 border-black pl-5 md:pl-6">
               <p className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
-                Availability
+                {isDutch ? 'Beschikbaarheid' : 'Availability'}
               </p>
               <div className="mt-3">
                 <CustomPortableText
@@ -139,6 +145,7 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
                   path={['body']}
                   paragraphClasses="font-serif text-base leading-relaxed text-gray-700 md:text-lg"
                   value={[availability] as PortableValue}
+                  locale={locale}
                 />
               </div>
             </aside>
@@ -147,12 +154,16 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
           {stackItems.length > 0 && (
             <div className="mt-10 border-t border-black/[0.08] pt-8">
               <p className="font-sans text-xs font-medium uppercase tracking-[0.18em] text-gray-400">
-                Core stack
+                {isDutch ? 'Kerntechnologieën' : 'Core stack'}
               </p>
               <ul className="mt-4 flex flex-wrap items-center gap-x-1 gap-y-2 font-mono text-sm text-gray-600 md:text-[0.9rem]">
                 {stackItems.map((item, index) => (
                   <li key={item} className="flex items-center gap-x-1">
-                    {index > 0 && <span className="text-gray-300" aria-hidden>·</span>}
+                    {index > 0 && (
+                      <span className="text-gray-300" aria-hidden>
+                        ·
+                      </span>
+                    )}
                     <span>{item}</span>
                   </li>
                 ))}
@@ -160,7 +171,7 @@ export function AboutSection({id, type, title, overview, body}: AboutSectionProp
             </div>
           )}
 
-          <CopyEmailButton />
+          <CopyEmailButton locale={locale} />
         </div>
       </div>
     </article>

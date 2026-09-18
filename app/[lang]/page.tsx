@@ -1,6 +1,7 @@
 import {defineQuery} from 'next-sanity'
 import Link from 'next/link'
 import {draftMode} from 'next/headers'
+import {notFound} from 'next/navigation'
 import {Suspense} from 'react'
 
 import {AboutSection} from '@/components/AboutSection'
@@ -10,18 +11,24 @@ import {Header} from '@/components/Header'
 import {HomeHashScroll} from '@/components/HomeHashScroll'
 import {ProjectsSection} from '@/components/ProjectsSection'
 import {SkillsSection} from '@/components/SkillsSection'
+import {hasLocale, type Locale} from '@/i18n/routing'
 import {studioUrl} from '@/sanity/lib/api'
 import {getDynamicFetchOptions, sanityFetch, type DynamicFetchOptions} from '@/sanity/lib/live'
 
 const homePageQuery = defineQuery(`
   {
-    "home": *[_type == "home"][0]{
+    "home": *[_type == "home" && language in [$language, "nl"]]
+      | order(select(language == $language => 0, 1) asc)[0]{
       _id,
       _type,
       overview,
       title,
     },
-    "pages": *[_type == "page" && slug.current in ["about", "projects", "education", "work", "skills", "contact"]] | order(
+    "pages": *[
+      _type == "page" &&
+      language in [$language, "nl"] &&
+      slug.current in ["about", "projects", "education", "work", "skills", "contact"]
+    ] | order(
       select(
         slug.current == "about" => 0,
         slug.current == "work" => 1,
@@ -30,7 +37,8 @@ const homePageQuery = defineQuery(`
         slug.current == "skills" => 4,
         slug.current == "contact" => 5,
         99
-      ) asc
+      ) asc,
+      select(language == $language => 0, 1) asc
     ) {
       _id,
       _type,
@@ -44,21 +52,24 @@ const homePageQuery = defineQuery(`
 
 const SECTION_ORDER = ['about', 'work', 'projects', 'education', 'skills', 'contact'] as const
 
-export default async function IndexPage() {
+export default async function IndexPage({params}: PageProps<'/[lang]'>) {
+  const {lang} = await params
+  if (!hasLocale(lang)) notFound()
+
   const {isEnabled: isDraftMode} = await draftMode()
   if (!isDraftMode) {
-    return <CachedHome perspective="published" stega={false} />
+    return <CachedHome locale={lang} perspective="published" stega={false} />
   }
   return (
     <Suspense>
-      <DynamicHome />
+      <DynamicHome locale={lang} />
     </Suspense>
   )
 }
 
-async function DynamicHome() {
+async function DynamicHome({locale}: {locale: Locale}) {
   const {perspective, stega} = await getDynamicFetchOptions()
-  return <CachedHome perspective={perspective} stega={stega} />
+  return <CachedHome locale={locale} perspective={perspective} stega={stega} />
 }
 
 function SectionShell({
@@ -78,25 +89,37 @@ function SectionShell({
   )
 }
 
-async function CachedHome({perspective, stega}: DynamicFetchOptions) {
+async function CachedHome({
+  locale,
+  perspective,
+  stega,
+}: DynamicFetchOptions & {locale: Locale}) {
   'use cache'
-  const {data} = await sanityFetch({query: homePageQuery, perspective, stega})
+  const {data} = await sanityFetch({
+    query: homePageQuery,
+    params: {language: locale},
+    perspective,
+    stega,
+  })
   const home = data?.home
   const pages = data?.pages ?? []
 
   if (!home) {
     return (
       <div className="text-center">
-        You don&rsquo;t have a homepage yet,{' '}
+        {locale === 'nl' ? 'Er is nog geen homepage. ' : "You don't have a homepage yet, "}
         <Link href={`${studioUrl}/structure/home`} className="underline">
-          create one now
+          {locale === 'nl' ? 'Maak er nu een aan' : 'create one now'}
         </Link>
         !
       </div>
     )
   }
 
-  const pageBySlug = new Map(pages.map((page) => [page.slug, page]))
+  const pageBySlug = new Map<string | null, (typeof pages)[number]>()
+  for (const page of pages) {
+    if (!pageBySlug.has(page.slug)) pageBySlug.set(page.slug, page)
+  }
 
   return (
     <div className="space-y-0">
@@ -110,6 +133,7 @@ async function CachedHome({perspective, stega}: DynamicFetchOptions) {
             centered
             title={home.title}
             description={home.overview}
+            locale={locale}
           />
         )}
       </section>
@@ -127,6 +151,7 @@ async function CachedHome({perspective, stega}: DynamicFetchOptions) {
                 title={page.title}
                 overview={page.overview}
                 body={page.body}
+                locale={locale}
               />
             </SectionShell>
           )
@@ -140,6 +165,7 @@ async function CachedHome({perspective, stega}: DynamicFetchOptions) {
                 type={page._type}
                 title={page.title}
                 overview={page.overview}
+                locale={locale}
                 perspective={perspective}
                 stega={stega}
               />
@@ -155,6 +181,7 @@ async function CachedHome({perspective, stega}: DynamicFetchOptions) {
                 type={page._type}
                 title={page.title}
                 overview={page.overview}
+                locale={locale}
               />
             </SectionShell>
           )
@@ -168,6 +195,7 @@ async function CachedHome({perspective, stega}: DynamicFetchOptions) {
                 type={page._type}
                 title={page.title}
                 overview={page.overview}
+                locale={locale}
               />
             </SectionShell>
           )
@@ -179,8 +207,9 @@ async function CachedHome({perspective, stega}: DynamicFetchOptions) {
               id={page._id}
               type={page._type}
               path={['overview']}
-              title={page.title || 'Untitled'}
+              title={page.title || (locale === 'nl' ? 'Zonder titel' : 'Untitled')}
               description={page.overview}
+              locale={locale}
             />
             {Array.isArray(page.body) && (
               <CustomPortableText
@@ -189,6 +218,7 @@ async function CachedHome({perspective, stega}: DynamicFetchOptions) {
                 path={['body']}
                 paragraphClasses="font-serif max-w-3xl text-gray-600 text-xl"
                 value={page.body}
+                locale={locale}
               />
             )}
           </SectionShell>

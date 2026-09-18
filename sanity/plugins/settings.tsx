@@ -5,6 +5,8 @@
 import {type DocumentDefinition} from 'sanity'
 import {type StructureResolver} from 'sanity/structure'
 
+import {SUPPORTED_LANGUAGES} from '@/sanity/schemas/locale'
+
 export const singletonPlugin = (types: string[]) => {
   return {
     name: 'singletonPlugin',
@@ -34,22 +36,51 @@ export const singletonPlugin = (types: string[]) => {
 // like how "Home" is handled.
 export const pageStructure = (typeDefArray: DocumentDefinition[]): StructureResolver => {
   return (S) => {
-    // Goes through all of the singletons that were provided and translates them into something the
-    // Desktool can understand
     const singletonItems = typeDefArray.map((typeDef) => {
       return S.listItem()
         .title(typeDef.title!)
         .icon(typeDef.icon)
-        .child(S.editor().id(typeDef.name).schemaType(typeDef.name).documentId(typeDef.name))
+        .child(
+          S.list()
+            .title(typeDef.title!)
+            .items(
+              SUPPORTED_LANGUAGES.map(({title, value}) =>
+                S.listItem()
+                  .title(title)
+                  .child(
+                    S.editor()
+                      .id(`${typeDef.name}-${value}`)
+                      .schemaType(typeDef.name)
+                      .documentId(value === 'en' ? typeDef.name : `${typeDef.name}-${value}`),
+                  ),
+              ),
+            ),
+        )
     })
 
-    // The default root list items (except custom ones)
-    const defaultListItems = S.documentTypeListItems().filter(
-      (listItem) => !typeDefArray.find((singleton) => singleton.name === listItem.getId()),
+    const localizedDocumentItems = ['page', 'project'].map((schemaType) =>
+      S.listItem()
+        .title(schemaType === 'page' ? 'Pages' : 'Projects')
+        .child(
+          S.list()
+            .title(schemaType === 'page' ? 'Pages' : 'Projects')
+            .items(
+              SUPPORTED_LANGUAGES.map(({title, value}) =>
+                S.listItem()
+                  .title(title)
+                  .child(
+                    S.documentTypeList(schemaType)
+                      .title(`${title} ${schemaType === 'page' ? 'pages' : 'projects'}`)
+                      .filter(`_type == $type && language == $language`)
+                      .params({type: schemaType, language: value}),
+                  ),
+              ),
+            ),
+        ),
     )
 
     return S.list()
       .title('Content')
-      .items([...singletonItems, S.divider(), ...defaultListItems])
+      .items([...singletonItems, S.divider(), ...localizedDocumentItems])
   }
 }
